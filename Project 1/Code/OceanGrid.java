@@ -45,7 +45,7 @@ public class OceanGrid extends GameBoard {
 					return false;
 				}
 			}
-			
+
 			// valid placement established if past previous for loop; change grid values for
 			// appropriate ship
 			ship1.setBowPosition(row, col);
@@ -67,32 +67,32 @@ public class OceanGrid extends GameBoard {
 			// appropriate ship
 			ship1.setBowPosition(row, col);
 			for (int i = 0; i < height; i++) {
-				this.updateGrid(row + i, col, ship1.getID()); 
+				this.updateGrid(row + i, col, ship1.getID());
 			}
 		}
 
 		return true;
 	}
-	
-	//returns Ship with shipID; precondition: Ship with shipID must exist
+
+	// returns Ship with shipID; precondition: Ship with shipID must exist
 	public Ship getShipWithID(int shipID) {
-		
+
 		Ship tempShip = shipArray[0];
-		for(int i = 0; i < NUM_SHIPS; i++) { //for each ship in the ship array
-			if (shipID == shipArray[i].getID()) { //check shipID against that ship's ID
-				tempShip = shipArray[i];	//save under tempShip to return 
+		for (int i = 0; i < NUM_SHIPS; i++) { // for each ship in the ship array
+			if (shipID == shipArray[i].getID()) { // check shipID against that ship's ID
+				tempShip = shipArray[i]; // save under tempShip to return
 			}
 		}
 		return tempShip;
 	}
-	
-	//returns Ship at current grid location
+
+	// returns Ship at current grid location
 	public Ship getShipAt(int row, int col) {
-		int shipID = this.getGridLocationValue(row, col); //find shipID at location given
+		int shipID = this.getGridLocationValue(row, col); // find shipID at location given
 		Ship ship1 = this.getShipWithID(shipID);
 		return ship1;
 	}
-	
+
 	// place all ships automatically (and randomly)
 	public void autoPlaceShips() {
 
@@ -115,7 +115,7 @@ public class OceanGrid extends GameBoard {
 		}
 	}
 
-	//updates grid gridArray value and sends hit data to individual Ships	
+	// updates grid gridArray value and sends hit data to individual Ships
 	public boolean processShot() {
 		int row = this.getCurrentShot()[0];
 		int col = this.getCurrentShot()[1];
@@ -137,8 +137,8 @@ public class OceanGrid extends GameBoard {
 
 	// updates ship with a hit at given location
 	public void isHit(int row, int col) {
-		Ship ship1 = this.getShipAt(row, col); //find which ship is hit
-		ship1.addHit(row, col);	//update with hit
+		Ship ship1 = this.getShipAt(row, col); // find which ship is hit
+		ship1.addHit(row, col); // update with hit
 	}
 
 	// get number of ships in ocean grid

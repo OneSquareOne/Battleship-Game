@@ -15,7 +15,7 @@ public abstract class GameBoard {
 			for (int j = 0; j < 10; j++)
 				gridArray[i][j] = -1;
 		}
-		currentShot = new int[]{-1,-1};
+		currentShot = new int[] { -1, -1 };
 	}
 
 	// clears the grid
@@ -26,12 +26,14 @@ public abstract class GameBoard {
 		}
 	}
 
-	// updates grid with new value; -1 = no ship, 0 = missed shot (for visualization), 1 or greater: ship (hit or not hit)
+	// updates grid with new value; -1 = no ship, 0 = missed shot (for
+	// visualization), 1 or greater: ship (hit or not hit)
 	public void updateGrid(int row, int col, int newVal) {
 		gridArray[row][col] = newVal;
 	}
 
-	// returns grid value; -1 = no ship, 0 = missed shot (for visualization), 1 or greater: ship (hit or not hit)
+	// returns grid value; -1 = no ship, 0 = missed shot (for visualization), 1 or
+	// greater: ship (hit or not hit)
 	public int getGridLocationValue(int row, int col) {
 		return gridArray[row][col];
 	}
