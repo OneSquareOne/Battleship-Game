@@ -3,16 +3,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class BattleShipClient {
     private ObjectOutputStream output; // output stream to server
     private ObjectInputStream input; // input stream from server
-    private String message = ""; // message from server
-    private int [] intArr;
     private String playServer; // host server for this application
     private Socket client; // socket to communicate with server
-    private Scanner keyboard = new Scanner(System.in);
 
     public BattleShipClient(String serverName) {
         playServer = serverName; // set playServer to initiate connection correctly
@@ -110,25 +106,28 @@ public class BattleShipClient {
         } // end catch
     } // end sendIntArrayData
 
-    public String readStringObject() throws IOException{
-         try
-     {
-     message = (String) input.readObject(); // read new message
-     System.out.println("\n" + message); // display message
-    }
-    catch (ClassNotFoundException classNotFoundException) {
-     System.out.println("\nUnknown object type received");
-     } // end catch
-     return message;
+    public String readStringObject() throws IOException {
+        String message = null;
+        do {
+            try {
+                message = (String) input.readObject(); // read new message
+            } catch (ClassNotFoundException classNotFoundException) {
+                System.out.println("\nUnknown object type received");
+            } // end catch
+        } while (message == null);
+        return message;
     }
 
     public int[] readIntArrayObject() throws IOException {
-        try {
-            intArr = (int[]) input.readObject(); // read new message
-            System.out.println("Integer array received"); // display message
-        } catch (ClassNotFoundException classNotFoundException) {
-            System.out.println("\nUnknown object type received");
-        } // end catch
+        int[] intArr = null;
+        do {
+            try {
+                intArr = (int[]) input.readObject(); // read new message
+                System.out.println("Integer array received"); // display message
+            } catch (ClassNotFoundException classNotFoundException) {
+                System.out.println("\nUnknown object type received");
+            } // end catch
+        } while (intArr == null);
         return intArr;
     }
 }
