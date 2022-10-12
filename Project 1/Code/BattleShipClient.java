@@ -9,6 +9,7 @@ public class BattleShipClient {
     private ObjectOutputStream output; // output stream to server
     private ObjectInputStream input; // input stream from server
     private String message = ""; // message from server
+    private int [] intArr;
     private String playServer; // host server for this application
     private Socket client; // socket to communicate with server
     private Scanner keyboard = new Scanner(System.in);
@@ -52,7 +53,8 @@ public class BattleShipClient {
         System.out.println("\nGot I/O streams\n");
     } // end method getStreams
 
-    /* Previous code
+    /*
+     * Previous code
      * // process connection with server
      * private void processConnection() throws IOException {
      * do // process messages sent from server
@@ -88,8 +90,7 @@ public class BattleShipClient {
 
     // send message to server
     public void sendStringData(String message) {
-        try
-        {
+        try {
             output.writeObject("CLIENT>>> " + message);
             output.flush(); // flush data to output
         } // end try
@@ -108,4 +109,26 @@ public class BattleShipClient {
             System.out.println("\nError writing object");
         } // end catch
     } // end sendIntArrayData
+
+    public String readStringObject() throws IOException{
+         try
+     {
+     message = (String) input.readObject(); // read new message
+     System.out.println("\n" + message); // display message
+    }
+    catch (ClassNotFoundException classNotFoundException) {
+     System.out.println("\nUnknown object type received");
+     } // end catch
+     return message;
+    }
+
+    public int[] readIntArrayObject() throws IOException {
+        try {
+            intArr = (int[]) input.readObject(); // read new message
+            System.out.println("Integer array received"); // display message
+        } catch (ClassNotFoundException classNotFoundException) {
+            System.out.println("\nUnknown object type received");
+        } // end catch
+        return intArr;
+    }
 }
