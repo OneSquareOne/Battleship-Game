@@ -8,6 +8,8 @@ public class BSServerTest {
         server.startServer();
         System.out.println("Server connected!");
         server.sendStringData(data);
+        System.out.println("Sent String data");
         server.sendIntArrayData(coordinates);
+        System.out.println("Sent integer data");
     }
 }
