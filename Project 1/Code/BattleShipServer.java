@@ -4,38 +4,41 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
+import java.net.UnknownHostException;
+import java.net.InetAddress;
 
 public class BattleShipServer {
     private ObjectOutputStream output; // output stream to client
     private ObjectInputStream input; // input stream from client
     private ServerSocket server; // server socket
     private Socket connection; // connection to client
-    private int counter = 1; // counter of number of connections
-    private Scanner keyboard = new Scanner(System.in);
+    private final int SERVER_PORT = 5000;
+    private String serverName;
 
-    //constructor
-    public BattleShipServer(){
-
-    }
+    // constructor
+    public BattleShipServer() {
+        try { // returns the server name
+            final String SERVER_NAME = InetAddress.getLocalHost().getHostName();
+            serverName = SERVER_NAME; // SERVER_NAME has to be in try/catch so you can't have it
+                                      // with other variables
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }// end constructor
 
     // set up and run server
-    public void runServer() {
+    public void startServer() {
         try // set up server to receive connections; process connections
         {
-            server = new ServerSocket(12345, 100); // create ServerSocket
-            
-           
-                try {
-                    waitForConnection(); // wait for a connection
-                    getStreams(); // get input & output streams
-                    processConnection(); // process connection
-                } // end try
-                catch (EOFException eofException) {
-                    System.out.println("\nServer terminated connection");
-                } // end catch
-            
-            
+            server = new ServerSocket(SERVER_PORT); // create ServerSocket
+
+            try {
+                waitForConnection(); // wait for a connection
+                getStreams(); // get input & output streams
+            } // end try
+            catch (EOFException eofException) {
+                System.out.println("\nServer terminated connection");
+            } // end catch
         } // end try
         catch (IOException ioException) {
             ioException.printStackTrace();
@@ -45,8 +48,8 @@ public class BattleShipServer {
     // wait for connection to arrive, then display connection info
     private void waitForConnection() throws IOException {
         connection = server.accept(); // allow server to accept connection
-        System.out.println("Connection " + counter + " received from: " +
-                connection.getInetAddress().getHostName());
+        System.out.println("Connection received from: " +
+                connection.getInetAddress().getHostName()); // TODO: written to in-game text box
     } // end method waitForConnection
 
     // get streams to send and receive data
@@ -57,33 +60,33 @@ public class BattleShipServer {
 
         // set up input stream for objects
         input = new ObjectInputStream(connection.getInputStream());
-
-        System.out.println("\nGot I/O streams\n");
     } // end method getStreams
-      // process connection with client
 
-    private void processConnection() throws IOException {
-        String message = "-1";
-        sendData(message); // send connection successful message
-
-        do // process messages sent from client
-        {
-            try // read message and display it
-            {
-            	message = keyboard.nextLine();
-            	sendData(message);
-                message = (String) input.readObject(); // read new message
-                System.out.println("\n" + message); // display message
-            } // end try
-            catch (ClassNotFoundException classNotFoundException) {
-                System.out.println("\nUnknown object type received");
-            } // end catch
-
-        } while (!message.equals("CLIENT>>> TERMINATE"));
-    } // end method processConnection
+    /*
+     * FROM ORIGINAL CODE
+     * private void processConnection() throws IOException {
+     * String message = "-1";
+     * sendData(message); // send connection successful message
+     * 
+     * do // process messages sent from client
+     * {
+     * try // read message and display it
+     * {
+     * message = keyboard.nextLine();
+     * sendData(message);
+     * message = (String) input.readObject(); // read new message
+     * System.out.println("\n" + message); // display message
+     * } // end try
+     * catch (ClassNotFoundException classNotFoundException) {
+     * System.out.println("\nUnknown object type received");
+     * } // end catch
+     * 
+     * } while (!message.equals("CLIENT>>> TERMINATE"));
+     * } // end method processConnection
+     */
 
     // close streams and socket
-    private void closeConnection() {
+    public void closeConnection() {
         try {
             output.close(); // close output stream
             input.close(); // close input stream
@@ -94,16 +97,30 @@ public class BattleShipServer {
         } // end catch
     } // end method closeConnection
 
-    // send message to client
-    private void sendData(String message) {
-        try // send object to client
-        {
+    // send String to client
+    public void sendStringData(String message) {
+        try {
             output.writeObject("SERVER>>> " + message);
             output.flush(); // flush output to client
-            System.out.println("\nSERVER>>> " + message);
         } // end try
         catch (IOException ioException) {
             System.out.println("\nError writing object");
         } // end catch
-    } // end method sendData
+    } // end sendStringData
+
+    // send int[] to client
+    public void sendIntArrayData(int[] arr) {
+        try {
+            output.writeObject(arr);
+            output.flush(); // flush output to client
+        } // end try
+        catch (IOException ioException) {
+            System.out.println("\nError writing object");
+        } // end catch
+    } // end sendIntArrayData
+
+    // returns current server name
+    public String getServerName() {
+        return serverName;
+    }
 }
