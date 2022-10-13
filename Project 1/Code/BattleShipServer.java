@@ -5,6 +5,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import javax.print.attribute.standard.Finishings;
+
 import java.net.InetAddress;
 
 public class BattleShipServer {
@@ -99,13 +102,18 @@ public class BattleShipServer {
 
     // send String to client
     public void sendStringData(String message) {
+        boolean finished = false;
+        Object unknownType;
+        do{
         try {
+            unknownType = input.readObject();
             output.writeObject("SERVER>>> " + message);
             output.flush(); // flush output to client
         } // end try
         catch (IOException ioException) {
             System.out.println("\nError writing object");
         } // end catch
+    }while (finished);
     } // end sendStringData
 
     // send int[] to client

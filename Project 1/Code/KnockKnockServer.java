@@ -26,9 +26,10 @@ public class KnockKnockServer {
             KnockKnockProtocol kkp = new KnockKnockProtocol();
             outputLine = kkp.processInput(null);
             out.println(outputLine);
-            out.println("This is a test");
+            System.out.println("This is a test");
 
             while ((inputLine = in.readLine()) != null) {
+                System.out.println("testing");
                 outputLine = kkp.processInput(inputLine);
                 out.println(outputLine);
                 if (outputLine.equals("Bye."))
