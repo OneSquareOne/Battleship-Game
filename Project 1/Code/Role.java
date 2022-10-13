@@ -5,4 +5,6 @@
 
 public abstract class  Role {
     public abstract String getRole();
+    public abstract void send(String message);
+    public abstract void send(int []array);
 }

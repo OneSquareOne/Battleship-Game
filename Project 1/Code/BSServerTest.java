@@ -7,9 +7,9 @@ public class BSServerTest {
         System.out.println(server.getServerName());
         server.startServer();
         System.out.println("Server connected!");
-        server.sendStringData(data);
+        server.send(data);
         System.out.println("Sent String data");
-        server.sendIntArrayData(coordinates);
+        server.send(coordinates);
         System.out.println("Sent integer data");
     }
 }

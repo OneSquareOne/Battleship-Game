@@ -86,7 +86,7 @@ public class BattleShipClient extends Role{
     } // end method closeConnection
 
     // send message to server
-    public void sendStringData(String message) {
+    public void send(String message) {
         try {
             output.writeObject("CLIENT>>> " + message);
             output.flush(); // flush data to output
@@ -97,7 +97,7 @@ public class BattleShipClient extends Role{
     } // end method sendData
 
     // send int[] to server
-    public void sendIntArrayData(int[] arr) {
+    public void send(int[] arr) {
         try {
             output.writeObject(arr);
             output.flush(); // flush output to server
