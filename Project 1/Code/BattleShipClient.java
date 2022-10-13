@@ -4,13 +4,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class BattleShipClient {
+public class BattleShipClient extends Role{
     private ObjectOutputStream output; // output stream to server
     private ObjectInputStream input; // input stream from server
     private String playServer; // host server for this application
     private Socket client; // socket to communicate with server
 
     public BattleShipClient(String serverName) {
+        super();
         playServer = serverName; // set playServer to initiate connection correctly
     }
 
@@ -129,5 +130,10 @@ public class BattleShipClient {
             } // end catch
         } while (intArr == null);
         return intArr;
+    }
+
+    @Override
+    public String getRole() {
+        return "Client";
     }
 }

@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.net.InetAddress;
 
-public class BattleShipServer {
+public class BattleShipServer extends Role{
     private ObjectOutputStream output; // output stream to client
     private ObjectInputStream input; // input stream from client
     private ServerSocket server; // server socket
@@ -17,6 +17,7 @@ public class BattleShipServer {
 
     // constructor
     public BattleShipServer() {
+        super();
         try { // returns the server name
             final String SERVER_NAME = InetAddress.getLocalHost().getHostName();
             serverName = SERVER_NAME; // SERVER_NAME has to be in try/catch so you can't have it
@@ -122,5 +123,10 @@ public class BattleShipServer {
     // returns current server name
     public String getServerName() {
         return serverName;
+    }
+
+    @Override
+    public String getRole() {
+        return "Server";
     }
 }
