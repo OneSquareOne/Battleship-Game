@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.net.InetAddress;
 
-public class BattleShipServer extends Role{
+public class BattleShipServer extends Role {
     private ObjectOutputStream output; // output stream to client
     private ObjectInputStream input; // input stream from client
     private ServerSocket server; // server socket
@@ -17,7 +17,6 @@ public class BattleShipServer extends Role{
 
     // constructor
     public BattleShipServer() {
-        super();
         try { // returns the server name
             final String SERVER_NAME = InetAddress.getLocalHost().getHostName();
             serverName = SERVER_NAME; // SERVER_NAME has to be in try/catch so you can't have it
@@ -29,7 +28,7 @@ public class BattleShipServer extends Role{
 
     // set up and run server
     public void startServer() {
-        try // set up server to receive connections; process connections
+        try 
         {
             server = new ServerSocket(SERVER_PORT); // create ServerSocket
 
@@ -63,28 +62,32 @@ public class BattleShipServer extends Role{
         input = new ObjectInputStream(connection.getInputStream());
     } // end method getStreams
 
-    /*
-     * FROM ORIGINAL CODE
-     * private void processConnection() throws IOException {
-     * String message = "-1";
-     * sendData(message); // send connection successful message
-     * 
-     * do // process messages sent from client
-     * {
-     * try // read message and display it
-     * {
-     * message = keyboard.nextLine();
-     * sendData(message);
-     * message = (String) input.readObject(); // read new message
-     * System.out.println("\n" + message); // display message
-     * } // end try
-     * catch (ClassNotFoundException classNotFoundException) {
-     * System.out.println("\nUnknown object type received");
-     * } // end catch
-     * 
-     * } while (!message.equals("CLIENT>>> TERMINATE"));
-     * } // end method processConnection
-     */
+    public Object receive() throws IOException {
+        Object obj = null;
+        try {
+            obj = input.readObject();
+        } // end try
+        catch (ClassNotFoundException classNotFoundException) {
+            System.out.println("\nUnknown object type received");
+        } // end catch
+        return obj;
+    } // end method sendObject
+
+    // send int to client
+    public void send(Object obj) {
+        try {
+            output.writeObject(obj);
+            output.flush(); // flush output to client
+        } // end try
+        catch (IOException ioException) {
+            System.out.println("\nError writing object");
+        } // end catch
+    } // end send
+
+    // returns current server name
+    public String getServerName() {
+        return serverName;
+    }
 
     // close streams and socket
     public void closeConnection() {
@@ -97,38 +100,6 @@ public class BattleShipServer extends Role{
             ioException.printStackTrace();
         } // end catch
     } // end method closeConnection
-
-    // send String to client
-    public void send(String message) {
-        boolean finished = false;
-        Object unknownType;
-        do{
-        try {
-            unknownType = input.readObject();
-            output.writeObject("SERVER>>> " + message);
-            output.flush(); // flush output to client
-        } // end try
-        catch (IOException ioException) {
-            System.out.println("\nError writing object");
-        } // end catch
-    }while (finished);
-    } // end sendStringData
-
-    // send int[] to client
-    public void send(int[] arr) {
-        try {
-            output.writeObject(arr);
-            output.flush(); // flush output to client
-        } // end try
-        catch (IOException ioException) {
-            System.out.println("\nError writing object");
-        } // end catch
-    } // end sendIntArrayData
-
-    // returns current server name
-    public String getServerName() {
-        return serverName;
-    }
 
     @Override
     public String getRole() {
