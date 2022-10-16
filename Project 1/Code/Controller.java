@@ -1,7 +1,7 @@
 /* Controller is part of the MVC design pattern and is used as a point of communication between the model and view.  It is 
- * also responsible for initializing the game environments an connecting to another player.
+ * also responsible for initializing the game environments and connecting to another player.
  * Authors: Ryan Collins, John Schmidt
- * Last Update: 10/4/2022
+ * Last Update: 10/15/2022
  */
 
 import java.io.IOException;
@@ -27,15 +27,13 @@ public class Controller {
 
 		Player thisPlayer = new Player(name);
 
-		// shadow is for maintaining a copy of the opponents grid so less communication
+		// Shadow is for maintaining a copy of the opponents grid so less communication
 		// is needed between players. After current shot is sent to opponent, all game
 		// logic is applied to the shadow, and the opponent does the same. Shadow should
-		// always be an exact copy of the second player this also minimizes the need to
+		// always be an exact copy of the second player. This also minimizes the need to
 		// rewrite code from the original version where both players were stored on the
 		// same console
-		Player opponentShadow = new Player("Opponent"); // TODO: if it's possible, we can get the
-		// name from the opponent once the connection is established. Until then, it can
-		// be default
+		Player opponentShadow = new Player("Opponent");
 
 		System.out.print("Select a role: 1=Server  2=Client:  "); // TODO:Replace with input from GUI
 		int choice = keyboard.nextInt();
@@ -57,6 +55,16 @@ public class Controller {
 		// application's role
 		thisPlayerRole.startConnection();
 
+		// Players swap names, sever sends first
+		if (thisPlayerRole instanceof BattleShipServer) {
+			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
+			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
+
+		} else if (thisPlayerRole instanceof BattleShipClient) {
+			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
+			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
+		}
+
 		// place ships
 		placeShips(thisPlayer);
 		System.out.println("Local Ships placed\n"); // DEBUG for testing
@@ -76,45 +84,59 @@ public class Controller {
 		}
 
 		System.out.println("Ships placement completed\n"); // DEBUG for testing
-		displayTargetGrid(thisPlayer);
-		displayOceanGrid(thisPlayer);
 
-		displayTargetGrid(opponentShadow); // DEBUG for testing
-		displayOceanGrid(opponentShadow); // DEBUG for testing
+		displayBothGrids(thisPlayer);
+
+		displayBothGrids(opponentShadow); // DEBUG for testing
 
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
-			System.out.println(name + "'s the server.  The server fires first! \n"); // TODO: move to GUI
+			System.out.println(thisPlayer.getName() + "'s the server.  The server fires first! \n");
 			rowColArray = shotPrompt(thisPlayer); // player1's turn
 			System.out.println("Sending current shot.\n"); // DEBUG for testing
 			thisPlayerRole.send(rowColArray);
 			System.out.println("Current shot sent.\n"); // DEBUG for testing
 			bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
+			displayBothGrids(thisPlayer); // TODO: move to GUI
 			currentWinner = checkForWinner(thisPlayer, opponentShadow);
 
 		} else if (thisPlayerRole instanceof BattleShipClient) {
-			System.out.println(name + "'s the client.  The server fires first, awaiting volley!\n");
+			System.out.println(thisPlayer.getName() + "'s the client.  The server fires first!\n");
 			// TODO: move to GUI
 		}
 
 		while (currentWinner == -1) { // main play loop
 
+			System.out.println("Awaiting incoming volley!\n");
 			rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
 			bombardPlayer(rowColArray[0], rowColArray[1], opponentShadow, thisPlayer);
+			displayBothGrids(thisPlayer); // TODO: Move to GUI
 			currentWinner = checkForWinner(thisPlayer, opponentShadow);
 
 			if (currentWinner == -1) {
-				rowColArray = shotPrompt(thisPlayer); // player1's turn
+				rowColArray = shotPrompt(thisPlayer); // this player's turn
 				System.out.println("Sending current shot.\n"); // DEBUG for testing
 				thisPlayerRole.send(rowColArray);
 				System.out.println("Current shot sent.\n"); // DEBUG for testing
 				bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
+				displayBothGrids(thisPlayer); // TODO: Move to GUI
 				currentWinner = checkForWinner(thisPlayer, opponentShadow);
 			}
 		}
 
+		// declare winners
+		// TODO: move all this stuff to the GUI
+		if (currentWinner == 1)
+			System.out.println("We have a winner!  " + thisPlayer.getName() + " is this round's winnner.");
+		else
+			System.out.println("We have a winner!  " + opponentShadow.getName() + " is this round's winnner.");
+			
+		System.out.println(thisPlayer.getName() + ": " + thisPlayer.getWins() + " wins");
+		System.out.println(opponentShadow.getName() + ": " + opponentShadow.getWins() + " wins");
 		keyboard.close();
+		thisPlayerRole.closeConnection();
 
+		// TODO: Encapsulate in a loop if desired
 	}
 
 	// method modifies an incoming OceanGrid to targetGrid formatting. Both players
@@ -255,6 +277,12 @@ public class Controller {
 		System.out.println();
 	}
 
+	// just displays both grids; formatted for text output
+	public static void displayBothGrids(Player currentPlayer) {
+		displayTargetGrid(currentPlayer);
+		displayOceanGrid(currentPlayer);
+	}
+
 	// prompts user for shot, then returns array with [row,col] //TODO: replace with
 	// GUI input
 	public static int[] shotPrompt(Player currentPlayer) {
@@ -303,6 +331,5 @@ public class Controller {
 		}
 		return -1;
 	}
-
 
 }
