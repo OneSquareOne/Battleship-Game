@@ -47,6 +47,15 @@ public abstract class GameBoard {
 		return gridArray;
 	}
 
+	// copies right hand side's GameBoard grid array
+	public int[][] copyGridArray(int[][] rightHandSide) {
+		for (int i = 0; i < totalRows; i++) {
+			for (int j = 0; j < totalCols; j++)
+				this.gridArray[i][j] = rightHandSide[i][j];
+		}
+		return this.gridArray;
+	}
+
 	// updates current shot
 	public void setCurrentShot(int row, int col) {
 		currentShot[0] = row;
@@ -57,16 +66,6 @@ public abstract class GameBoard {
 	public int[] getCurrentShot() {
 		int[] shotArr = { currentShot[0], currentShot[1] };
 		return shotArr;
-	}
-
-	//copies right hand side's game board.  May be useful if GameBoard is changed to a serialized 
-	//class for sending through I/O streams
-	public GameBoard copy(GameBoard rightHandSide){
-		for (int i = 0; i < totalRows; i++) {
-			for (int j = 0; j < totalCols; j++)
-				this.gridArray[i][j] = rightHandSide.gridArray[i][j];
-		}
-		return this;
 	}
 
 	// process shot received or shot made; returns boolean to indicate true if hit

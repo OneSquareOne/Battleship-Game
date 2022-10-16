@@ -1,3 +1,8 @@
+/* BattleShipServer is the server side extension for the server and client roles.
+ * Author: Ryan Collins, John Schmidt
+ * Last Update: 10/15/2022
+ */
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,8 +31,13 @@ public class BattleShipServer extends Role {
         }
     }// end constructor
 
+    //for polymorphic use
+    public void startConnection(){
+        startServer();
+    }
+
     // set up and run server
-    public void startServer() {
+    private void startServer() {
         try 
         {
             server = new ServerSocket(SERVER_PORT); // create ServerSocket
@@ -101,7 +111,6 @@ public class BattleShipServer extends Role {
         } // end catch
     } // end method closeConnection
 
-    @Override
     public String getRole() {
         return "Server";
     }

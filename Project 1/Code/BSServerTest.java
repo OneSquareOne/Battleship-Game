@@ -12,7 +12,7 @@ public class BSServerTest {
         Scanner keyboard = new Scanner(System.in);
         BattleShipServer server = new BattleShipServer();
         System.out.println(server.getServerName());
-        server.startServer();
+        server.startConnection();
         System.out.println("Server connected!");
         server.send(coordinates);
         System.out.println("Sent integer array data");

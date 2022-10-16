@@ -1,3 +1,8 @@
+/* BattleShipClient is the client side extension for the server and client roles.
+ * Author: Ryan Collins, John Schmidt
+ * Last Update: 10/15/2022
+ */
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,7 +19,12 @@ public class BattleShipClient extends Role {
         playServer = serverName; // set playServer to initiate connection correctly
     }
 
-    public void runClient() {
+    // for polymorphic use
+    public void startConnection() throws IOException {
+        runClient();
+    }
+
+    private void runClient() {
         try {
             connectToServer(); // create a Socket to make connection
             getStreams(); // get the input and output streams
@@ -85,7 +95,6 @@ public class BattleShipClient extends Role {
         } // end catch
     } // end method closeConnection
 
-    @Override
     public String getRole() {
         return "Client";
     }

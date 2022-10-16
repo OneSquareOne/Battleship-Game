@@ -9,7 +9,7 @@ public class BSClientTest {
         System.out.print("Enter server name:");
         String serverName = keyboard.next();
         BattleShipClient client = new BattleShipClient(serverName);
-        client.runClient();
+        client.startConnection();
         System.out.println("Connection to server successful");
         int[] arr = (int[]) client.receive();
         System.out.println("From server: " + Arrays.toString(arr));

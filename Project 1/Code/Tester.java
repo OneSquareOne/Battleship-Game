@@ -89,7 +89,6 @@ public class Tester {
 			}
 		}
 		System.out.println();
-
 	}
 
 	// display target grid, properly formatted; target
