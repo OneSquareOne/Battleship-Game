@@ -1,13 +1,14 @@
 /* TargetGrid is part of the Battle Ship project.  It is an implementation of the GameBoard superclass.  It is used to 
  * represent the target grid (your view of your opponents grid) in a Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 9/20/22
+ * Updated: 10/15/2022
  */
 
 public class TargetGrid extends GameBoard {
 
-	public TargetGrid() {
-		super();
+	//constructor
+	public TargetGrid(int rows,int cols) {
+		super(rows, cols);
 	}
 
 	// updates grid with new value; -1 = no ship no shot, 0 = no ship with shot, 1 = ship with hit

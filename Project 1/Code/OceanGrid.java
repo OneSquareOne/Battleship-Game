@@ -1,7 +1,7 @@
 /* OceanGrid is part of the Battle Ship project.  The OceanGrid class is an implementation of the GameBoard superclass.  It is used to 
  * represent the ocean grid (your view of your own grid and ships) in a Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 9/20/22
+ * Updated: 10/15/2022
  */
 
 import java.util.Random; //for autoPlaceShip()
@@ -12,8 +12,8 @@ public class OceanGrid extends GameBoard {
 	private final int NUM_SHIPS = 5; // open for expansion
 
 	// constructor
-	public OceanGrid() {
-		super();
+	public OceanGrid(int rows, int cols) {
+		super(rows, cols);
 		shipArray = new Ship[NUM_SHIPS];
 		shipArray[0] = new Ship("Carrier", 1, 5, true);
 		shipArray[1] = new Ship("Battleship", 2, 4, true);
@@ -29,7 +29,7 @@ public class OceanGrid extends GameBoard {
 		ship1.setHorizontal(horizontal);
 
 		// check for invalid placement out of bounds
-		if (row < 0 || row > 9 || col < 0 || col > 9)
+		if (row < 0 || row > totalRows-1 || col < 0 || col > totalCols-1)
 			return false;
 
 		int length = 0; // ship length if it is horizontal
@@ -56,7 +56,7 @@ public class OceanGrid extends GameBoard {
 		} else { // ship is vertical
 			height = ship1.getSize();
 			for (int i = 0; i < height; i++) {
-				if ((row + i) > 9 || this.getGridLocationValue(row + i, col) > 0) { // check out of bounds and check
+				if ((row + i) > totalRows-1 || this.getGridLocationValue(row + i, col) > 0) { // check out of bounds and check
 																					// grid (greater than 0 means that a
 																					// ship is there already)
 					return false;
@@ -105,8 +105,8 @@ public class OceanGrid extends GameBoard {
 			boolean validPlacement = false;
 			while (!validPlacement) {
 
-				int row = rand.nextInt(10); // generate random row between 0-10
-				int col = rand.nextInt(10); // generate random row between 0-10
+				int row = rand.nextInt(totalRows); // generate random row between 0-totalRows
+				int col = rand.nextInt(totalCols); // generate random row between 0-totalCols
 				boolean horziontal = rand.nextBoolean(); // generate random T/F
 
 				validPlacement = this.placeShip(row, col, ship1, horziontal); // try to place ship

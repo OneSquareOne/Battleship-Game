@@ -1,18 +1,22 @@
 /* GameBoard is part of the Battleship Project.  The GameBoard class is the abstract class for implementation of the TargetGrid
  * and OceanGrid classes. The processShot() method is abstract and must be implemented in these subclasses.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 9/20/22
+ * Updated: 10/15/2022
  */
 
 public abstract class GameBoard {
 	private int[][] gridArray;
 	private int[] currentShot; // 2 element array, shot location coordinates [row,col]
+	protected int totalRows;
+	protected int totalCols;
 
 	// constructor; initializes array to -1
-	public GameBoard() {
-		gridArray = new int[10][10];
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++)
+	public GameBoard(int rows, int cols) {
+		totalRows = rows;
+		totalCols = cols;
+		gridArray = new int[totalRows][totalCols];
+		for (int i = 0; i < totalRows; i++) {
+			for (int j = 0; j < totalCols; j++)
 				gridArray[i][j] = -1;
 		}
 		currentShot = new int[] { -1, -1 };
@@ -20,8 +24,8 @@ public abstract class GameBoard {
 
 	// clears the grid
 	public void clearGrid() {
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++)
+		for (int i = 0; i < totalRows; i++) {
+			for (int j = 0; j < totalCols; j++)
 				gridArray[i][j] = -1;
 		}
 	}
@@ -38,6 +42,11 @@ public abstract class GameBoard {
 		return gridArray[row][col];
 	}
 
+	//returns the grid array
+	public int[][] getGridArray(){
+		return gridArray;
+	}
+
 	// updates current shot
 	public void setCurrentShot(int row, int col) {
 		currentShot[0] = row;
@@ -48,6 +57,16 @@ public abstract class GameBoard {
 	public int[] getCurrentShot() {
 		int[] shotArr = { currentShot[0], currentShot[1] };
 		return shotArr;
+	}
+
+	//copies right hand side's game board.  May be useful if GameBoard is changed to a serialized 
+	//class for sending through I/O streams
+	public GameBoard copy(GameBoard rightHandSide){
+		for (int i = 0; i < totalRows; i++) {
+			for (int j = 0; j < totalCols; j++)
+				this.gridArray[i][j] = rightHandSide.gridArray[i][j];
+		}
+		return this;
 	}
 
 	// process shot received or shot made; returns boolean to indicate true if hit
