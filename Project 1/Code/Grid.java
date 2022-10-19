@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -16,10 +17,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 
 public class Grid implements ActionListener {
 	public static void main(String s[]) {
-		// ImageIcon water
+		ImageIcon water = new ImageIcon("./images/Ocean1.jpg");
 
 		JFrame frame = new JFrame();
 		frame.setBackground(Color.LIGHT_GRAY);
@@ -68,13 +70,13 @@ public class Grid implements ActionListener {
 					newButton.setBorderPainted(false);
 					buttonGrid.add(newButton);
 				} else { //and create buttons TODO: remove labels once painted
-					char c = (char) ('A' + (i - 1));
-					String str1 = c + " " + (j);
-					newButton = new JButton(str1);
+					int rowColArray[] = {i, j};
+					newButton = new JButton(water);
+					newButton.setBorder(new LineBorder(Color.black));
 					newButton.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
-							JOptionPane.showMessageDialog(frame, str1);
+							JOptionPane.showMessageDialog(frame, Arrays.toString(rowColArray));
 						}
 					});
 					buttonGrid.add(newButton);
@@ -105,9 +107,13 @@ public class Grid implements ActionListener {
 		boats.setBounds(950, 100, 450, 160);
 		frame.add(boats);
 
+		ImagePanel image_panel = new ImagePanel();
+		
+
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(null);
 		frame.setSize(1500, 900);
+		frame.add(image_panel);
 		frame.setVisible(true);
 	}
 
