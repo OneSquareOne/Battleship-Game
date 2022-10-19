@@ -7,7 +7,8 @@
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Controller {
+public class Controller implements Subject, Observer{
+	private Observer viewObserver;
 	static Scanner keyboard = new Scanner(System.in);
 	final int BOARD_ROWS = 10; // can be changed for larger board size
 	final int BOARD_COLS = 10;
@@ -330,6 +331,29 @@ public class Controller {
 			return 1;
 		}
 		return -1;
+	}
+
+	@Override
+	public void update() {
+		
+	}
+
+	@Override
+	public void registerObserver(Observer o) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeObserver(Observer o) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyObservers() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
