@@ -5,6 +5,11 @@
  * Last Update: 10/19/2022
  */
 public class State {
-     
-    
+    final static int SETUP = 0;
+    final static int ENTER_HOST_NAME = 1;
+    final static int SHIP_PLACEMENT = 2;
+    final static int SELECTING_VOLLEY = 3;
+    final static int AWAITING_INCOMING_VOLLEY = 4;
+    final static int END_GAME = 5;
+
 }
