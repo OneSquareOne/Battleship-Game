@@ -21,8 +21,8 @@ import javax.swing.border.LineBorder;
 
 public class Viewer implements Subject, Observer {
 
-	private Controller gameController;
-	private Observer controllerObserver;
+	private Controller gameController; // this is so the viewer can observe the controller
+	private Observer controllerObserver; // this is so the controller can observe the viewer
 	private ImageIcon water = new ImageIcon("./images/Ocean1_1.jpg");
 	private ImageIcon miss = new ImageIcon("./images/Ocean2_7.jpg");
 	private ImageIcon hit = new ImageIcon("./images/Ocean3_2.jpg");
@@ -125,29 +125,31 @@ public class Viewer implements Subject, Observer {
 
 	}
 
-	@Override
+	//this update is for the Viewer to receive information, and will be called by the controller
+	//like viewerObserver.update() in the controller's methods
 	public void update() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	//registers the controller as an observer
 	public void registerObserver(Observer o) {
 		controllerObserver = o;
 	}
 
-	@Override
+	//removes the controller as an observer
 	public void removeObserver(Observer o) {
-		// TODO Auto-generated method stub
-
+		controllerObserver = null;
 	}
 
-	@Override
+	//notifies the controller of a shot or other buttons hit
 	public void notifyObservers() {
-		// TODO Auto-generated method stub
+		controllerObserver.update(); //this update() is the one in the controller's methods
 
 	}
 
+	//targetGridListener will listen for buttons on the target grid to be pressed and send which
+	//button to the controller
 	public class targetGridListener implements ActionListener {
 		private int row;
 		private int col;
@@ -160,7 +162,9 @@ public class Viewer implements Subject, Observer {
 
 		//action performed; send shot to controller
 		public void actionPerformed(ActionEvent e) {
-			buttonArray[row][col].setIcon(hit);
+			//buttonArray[row][col].setIcon(hit);
+			controllerObserver.update();
+
 		}
 	}
 
