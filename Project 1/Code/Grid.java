@@ -19,9 +19,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-public class Grid implements ActionListener {
+public class Grid implements ActionListener, Subject, Observer {
 	public static void main(String s[]) {
 		ImageIcon water = new ImageIcon("./images/Ocean1.jpg");
+		ImageIcon hit = new ImageIcon("./images/Ocean1_2.jpg");
 
 		JFrame frame = new JFrame();
 		frame.setBackground(Color.LIGHT_GRAY);
@@ -72,11 +73,13 @@ public class Grid implements ActionListener {
 				} else { //and create buttons TODO: remove labels once painted
 					int rowColArray[] = {i, j};
 					newButton = new JButton(water);
+					JButton jbutton1 = newButton;
 					newButton.setBorder(new LineBorder(Color.black));
 					newButton.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							JOptionPane.showMessageDialog(frame, Arrays.toString(rowColArray));
+							jbutton1.setIcon(hit);
 						}
 					});
 					buttonGrid.add(newButton);
@@ -120,5 +123,29 @@ public class Grid implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registerObserver(Observer o) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeObserver(Observer o) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyObservers() {
+		// TODO Auto-generated method stub
+		
 	}
 }
