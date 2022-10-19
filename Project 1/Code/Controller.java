@@ -7,26 +7,31 @@
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Controller implements Subject, Observer{
-	private Observer viewObserver;
+public class Controller implements Subject, Observer {
 	static Scanner keyboard = new Scanner(System.in);
+	private Viewer gameViewer = null; // this is so the controller can observe the viewer
+	private Observer viewObserver = null; // this is so the viewer can observe the controller
+
 	final int BOARD_ROWS = 10; // can be changed for larger board size
 	final int BOARD_COLS = 10;
+	private String name; // for passing current player's name
+	private Role thisPlayerRole; // applications role (server or client)
+	private int currentWinner = -1; // for passing along current winner
+	private int rowColArray[]; // for passing along current shot
+	private Player thisPlayer; // TODO: Move to model
+	Player opponentShadow; // TODO:Move to model
 
-	public static void main(String args[]) throws IOException {
-		// data members
+	// constructor
+	public Controller() {
 
-		String name; // for passing current player's name
-		Role thisPlayerRole; // applications role (server or client)
-		int currentWinner = -1; // for passing along current winner
-		int rowColArray[]; // for passing along current shot
+	}
 
-		// **game initialization**
+	public void playGame() throws IOException {
 
 		System.out.print("Enter your name: "); // TODO: move this to the GUI
 		name = keyboard.nextLine(); // TODO: once in the GUI, the View will pass name here
 
-		Player thisPlayer = new Player(name);
+		thisPlayer = new Player(name); // move to model
 
 		// Shadow is for maintaining a copy of the opponents grid so less communication
 		// is needed between players. After current shot is sent to opponent, all game
@@ -34,7 +39,7 @@ public class Controller implements Subject, Observer{
 		// always be an exact copy of the second player. This also minimizes the need to
 		// rewrite code from the original version where both players were stored on the
 		// same console
-		Player opponentShadow = new Player("Opponent");
+		opponentShadow = new Player("Opponent"); // move to model
 
 		System.out.print("Select a role: 1=Server  2=Client:  "); // TODO:Replace with input from GUI
 		int choice = keyboard.nextInt();
@@ -131,7 +136,7 @@ public class Controller implements Subject, Observer{
 			System.out.println("We have a winner!  " + thisPlayer.getName() + " is this round's winnner.");
 		else
 			System.out.println("We have a winner!  " + opponentShadow.getName() + " is this round's winnner.");
-			
+
 		System.out.println(thisPlayer.getName() + ": " + thisPlayer.getWins() + " wins");
 		System.out.println(opponentShadow.getName() + ": " + opponentShadow.getWins() + " wins");
 		keyboard.close();
@@ -335,25 +340,32 @@ public class Controller implements Subject, Observer{
 
 	@Override
 	public void update() {
-		
+
 	}
 
-	@Override
+	// this update is for incoming shot information from this player's Viewer
+	public void update(int row, int col) {
+		//TODO:This instead needs to be something like -if state == something then bombard player
+		thisPlayer.getOceanGrid().setCurrentShot(row, col);
+	}
+
+	// registers the Viewer and Model controller; Precondition: the viewer must be
+	// registered first
 	public void registerObserver(Observer o) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void removeObserver(Observer o) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyObservers() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
