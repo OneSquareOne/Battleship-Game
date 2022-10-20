@@ -1,36 +1,38 @@
 /* Controller is part of the MVC design pattern and is used as a point of communication between the model and view.  It is 
  * also responsible for initializing the game environments and connecting to another player.
  * Authors: Ryan Collins, John Schmidt
- * Last Update: 10/15/2022
+ * Last Update: 10/19/2022
  */
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Controller implements Subject, Observer {
-	static Scanner keyboard = new Scanner(System.in);
 	private Viewer gameViewer = null; // this is so the controller can observe the viewer
 	private Observer viewObserver = null; // this is so the viewer can observe the controller
 
 	final int BOARD_ROWS = 10; // can be changed for larger board size
 	final int BOARD_COLS = 10;
 	private String name; // for passing current player's name
-	private Role thisPlayerRole; // applications role (server or client)
+	private String serverName;
+	private Role thisPlayerRole = null; // applications role (server or client)
 	private int currentWinner = -1; // for passing along current winner
 	private int rowColArray[]; // for passing along current shot
 	private Player thisPlayer; // TODO: Move to model
-	Player opponentShadow; // TODO:Move to model
+	private Player opponentShadow; // TODO:Move to model
+	private State thisPlayerState;
 
 	// constructor
 	public Controller() {
-
+		thisPlayerState = new State();
 	}
 
 	public void playGame() throws IOException {
 
-		System.out.print("Enter your name: "); // TODO: move this to the GUI
-		name = keyboard.nextLine(); // TODO: once in the GUI, the View will pass name here
+		while (thisPlayerState.currentState == State.SETUP) {
+		} // wait for setup to complete
 
+		System.out.print("Enter your name: "); // TODO: move this to the GUI
 		thisPlayer = new Player(name); // move to model
 
 		// Shadow is for maintaining a copy of the opponents grid so less communication
@@ -41,59 +43,39 @@ public class Controller implements Subject, Observer {
 		// same console
 		opponentShadow = new Player("Opponent"); // move to model
 
-		System.out.print("Select a role: 1=Server  2=Client:  "); // TODO:Replace with input from GUI
-		int choice = keyboard.nextInt();
-		keyboard.nextLine();
+		while (thisPlayerState.currentState == State.SELECTING_HOST) {
+		} // wait for host selection
 
-		if (choice == 1) {
-			thisPlayerRole = new BattleShipServer();
-			System.out.print("You are the " + thisPlayerRole.getRole() + ". Your device name is: "
-					+ ((BattleShipServer) thisPlayerRole).getServerName());
-			System.out.println();
+		System.out.print("Enter Server device name: "); // TODO: move to gui
 
-		} else {
-			System.out.print("Enter Server device name: ");
-			name = keyboard.nextLine();
-			thisPlayerRole = new BattleShipClient(name);
+		while (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
+		} // wait for entering of server name from client, skipped if server
+
+		// if selection was client, thisPlayerRole will still be null
+		if (thisPlayerRole == null) {
+			thisPlayerRole = new BattleShipClient(serverName);
+			thisPlayerState.currentState = State.SHIP_PLACEMENT;
 		}
 
 		// sets up the client side or server side of the connection, based on the
-		// application's role
+		// application's role; this is a BLOCKING method call (client and server
+		// synchronized here)
 		thisPlayerRole.startConnection();
 
 		// Players swap names, sever sends first
-		if (thisPlayerRole instanceof BattleShipServer) {
-			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
-			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
+		swapNames();
 
-		} else if (thisPlayerRole instanceof BattleShipClient) {
-			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
-			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
+		while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 		}
 
 		// place ships
 		placeShips(thisPlayer);
-		System.out.println("Local Ships placed\n"); // DEBUG for testing
+		System.out.println("Local Ships placed\n"); // TODO: move to GUI
 
 		// Players swap ocean grids, sever sends first
-		if (thisPlayerRole instanceof BattleShipServer) {
-			thisPlayerRole.send(thisPlayer.getOceanGrid().getGridArray()); // send to client
-			System.out.println("Local Ships sent\n"); // DEBUG for testing
-			opponentShadow.getOceanGrid().copyGridArray((int[][]) thisPlayerRole.receive());
-			System.out.println("Opponent Ships copied\n"); // DEBUG for testing
+		swapGrids();
 
-		} else if (thisPlayerRole instanceof BattleShipClient) {
-			opponentShadow.getOceanGrid().copyGridArray((int[][]) thisPlayerRole.receive());
-			System.out.println("Opponent Ships copied\n"); // DEBUG for testing
-			thisPlayerRole.send(thisPlayer.getOceanGrid().getGridArray()); // send to server
-			System.out.println("Local Ships sent\n"); // DEBUG for testing
-		}
-
-		System.out.println("Ships placement completed\n"); // DEBUG for testing
-
-		displayBothGrids(thisPlayer);
-
-		displayBothGrids(opponentShadow); // DEBUG for testing
+		System.out.println("Ships placement completed\n"); //TODO: move to gui
 
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
@@ -102,7 +84,7 @@ public class Controller implements Subject, Observer {
 			System.out.println("Sending current shot.\n"); // DEBUG for testing
 			thisPlayerRole.send(rowColArray);
 			System.out.println("Current shot sent.\n"); // DEBUG for testing
-			bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
+			// bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
 			displayBothGrids(thisPlayer); // TODO: move to GUI
 			currentWinner = checkForWinner(thisPlayer, opponentShadow);
 
@@ -111,23 +93,37 @@ public class Controller implements Subject, Observer {
 			// TODO: move to GUI
 		}
 
-		while (currentWinner == -1) { // main play loop
+		/*
+		 * while (currentWinner == -1) { // main play loop
+		 * 
+		 * System.out.println("Awaiting incoming volley!\n");
+		 * rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
+		 * bombardPlayer(rowColArray[0], rowColArray[1], opponentShadow, thisPlayer);
+		 * displayBothGrids(thisPlayer); // TODO: Move to GUI
+		 * currentWinner = checkForWinner(thisPlayer, opponentShadow);
+		 * 
+		 * if (currentWinner == -1) {
+		 * 
+		 * rowColArray = shotPrompt(thisPlayer); // this player's turn
+		 * System.out.println("Sending current shot.\n"); // DEBUG for testing
+		 * thisPlayerRole.send(rowColArray);
+		 * System.out.println("Current shot sent.\n"); // DEBUG for testing
+		 * bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
+		 * displayBothGrids(thisPlayer); // TODO: Move to GUI
+		 * currentWinner = checkForWinner(thisPlayer, opponentShadow);
+		 * }
+		 * }
+		 */
 
-			System.out.println("Awaiting incoming volley!\n");
-			rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
-			bombardPlayer(rowColArray[0], rowColArray[1], opponentShadow, thisPlayer);
-			displayBothGrids(thisPlayer); // TODO: Move to GUI
-			currentWinner = checkForWinner(thisPlayer, opponentShadow);
+		while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+		} // wait for volley to be selected; currentState is changed when target button
+			// pressed
 
-			if (currentWinner == -1) {
-				rowColArray = shotPrompt(thisPlayer); // this player's turn
-				System.out.println("Sending current shot.\n"); // DEBUG for testing
-				thisPlayerRole.send(rowColArray);
-				System.out.println("Current shot sent.\n"); // DEBUG for testing
-				bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
-				displayBothGrids(thisPlayer); // TODO: Move to GUI
-				currentWinner = checkForWinner(thisPlayer, opponentShadow);
-			}
+		bombardPlayer(thisPlayer, opponentShadow);
+		thisPlayerRole.send(rowColArray);
+		currentWinner = checkForWinner(thisPlayer, opponentShadow);
+		if (currentWinner != -1) {
+			thisPlayerState.currentState = State.END_GAME; // move currentState to end game if winner declared
 		}
 
 		// declare winners
@@ -139,10 +135,33 @@ public class Controller implements Subject, Observer {
 
 		System.out.println(thisPlayer.getName() + ": " + thisPlayer.getWins() + " wins");
 		System.out.println(opponentShadow.getName() + ": " + opponentShadow.getWins() + " wins");
-		keyboard.close();
 		thisPlayerRole.closeConnection();
 
 		// TODO: Encapsulate in a loop if desired
+	}
+
+	// Players swap names, sever sends first
+	private void swapNames() throws IOException {
+		if (thisPlayerRole instanceof BattleShipServer) {
+			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
+			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
+
+		} else if (thisPlayerRole instanceof BattleShipClient) {
+			opponentShadow.setName((String) thisPlayerRole.receive()); // receive opponents name
+			thisPlayerRole.send(thisPlayer.getName()); // send this player's name to opponent
+		}
+	}
+
+	// Players swap ocean grids, sever sends first
+	private void swapGrids() throws IOException {
+		if (thisPlayerRole instanceof BattleShipServer) {
+			thisPlayerRole.send(thisPlayer.getOceanGrid().getGridArray()); // send to client
+			opponentShadow.getOceanGrid().copyGridArray((int[][]) thisPlayerRole.receive());
+
+		} else if (thisPlayerRole instanceof BattleShipClient) {
+			opponentShadow.getOceanGrid().copyGridArray((int[][]) thisPlayerRole.receive());
+			thisPlayerRole.send(thisPlayer.getOceanGrid().getGridArray()); // send to server
+		}
 	}
 
 	// method modifies an incoming OceanGrid to targetGrid formatting. Both players
@@ -303,15 +322,16 @@ public class Controller implements Subject, Observer {
 		return coordinates;
 	}
 
-	// processes a shot
-	public static void bombardPlayer(int row, int col, Player shootingPlayer, Player receivingPlayer) {
-		receivingPlayer.getOceanGrid().setCurrentShot(row, col); // set shot
-		shootingPlayer.getTargetGrid().setCurrentShot(row, col);
+	// processes a shot; precondition: current shot is set for shooting player
+	public static void bombardPlayer(Player shootingPlayer, Player receivingPlayer) {
+		int row = shootingPlayer.getOceanGrid().getCurrentShot()[0];
+		int col = shootingPlayer.getOceanGrid().getCurrentShot()[0];
 		boolean hit = receivingPlayer.getOceanGrid().processShot(); // process shot against receivingPlayer
 
 		if (hit) {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
-			System.out.println(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!");
+			System.out.println(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!"); // TODO: move to
+																										// gui
 			shootingPlayer.getTargetGrid().isHit(row, col);
 			if (shipHit.isSunk()) {
 				System.out.println("The " + shipHit.getName() + " was sunk!");
@@ -343,10 +363,48 @@ public class Controller implements Subject, Observer {
 
 	}
 
+	// this update is for updating the name of this console's player; TODO: tie to
+	// name box
+	public void update(String playerOrServerName) {
+		if (thisPlayerState.currentState == State.SETUP) {
+			name = playerOrServerName;
+			thisPlayerState.currentState = State.SELECTING_HOST; // moves to next state
+		} else if (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
+			serverName = playerOrServerName;
+		}
+	}
+
+	// this update is for updating which player is the server
+	public void update(boolean isServer) {
+		if (thisPlayerState.currentState == State.SELECTING_HOST) { // in server setup state
+			if (isServer) {
+				thisPlayerRole = new BattleShipServer();
+				System.out.print("You are the " + thisPlayerRole.getRole() + ". Your device name is: "
+						+ ((BattleShipServer) thisPlayerRole).getServerName()); // TODO: move to gui
+				thisPlayerState.currentState = State.SHIP_PLACEMENT; // skip host name entry
+			} else {
+				thisPlayerState.currentState = State.CONNECT_TO_HOST; // move to receive host name
+			}
+		}
+	}
+
 	// this update is for incoming shot information from this player's Viewer
 	public void update(int row, int col) {
-		//TODO:This instead needs to be something like -if state == something then bombard player
-		thisPlayer.getOceanGrid().setCurrentShot(row, col);
+		if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+			thisPlayer.getOceanGrid().setCurrentShot(row, col);
+			opponentShadow.getOceanGrid().setCurrentShot(row, col);
+			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
+		}
+	}
+
+	// this update is for placing ships automatically
+	public void updateAutoPlaceShips() {
+		thisPlayer.getOceanGrid().autoPlaceShips();
+		if (thisPlayerRole instanceof BattleShipServer) {
+			thisPlayerState.currentState = State.SELECTING_VOLLEY;
+		} else {
+			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
+		}
 	}
 
 	// registers the Viewer and Model controller; Precondition: the viewer must be
