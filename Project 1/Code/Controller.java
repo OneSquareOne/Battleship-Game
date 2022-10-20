@@ -69,7 +69,7 @@ public class Controller implements Subject, Observer {
 		}
 
 		// place ships
-		placeShips(thisPlayer);
+		placeShips(thisPlayer);//TODO: implement in gui
 		System.out.println("Local Ships placed\n"); // TODO: move to GUI
 
 		// Players swap ocean grids, sever sends first
