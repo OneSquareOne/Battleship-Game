@@ -10,12 +10,7 @@ public class OceanGrid extends GameBoard {
 
 	private Ship[] shipArray;
 	private final int NUM_SHIPS = 5; // open for expansion
-	private final String AIRCRAFT_CARRIER_IMG_SUBDIRECTORY = "/AircraftCarrier";
-	private final String BATTLESHIP_IMG_SUBDIRECTORY = "/Battleship";
-	private final String CRUISER_IMG_SUBDIRECTORY = "/Cruiser";
-	private final String SUBMARINE_IMG_SUBDIRECTORY = "/Submarine";
-	private final String DESTROYER_IMG_SUBDIRECTORY = "/Destroyer";
-	private final String OTHER_IMG_SUBDIRECTORY = "/Other";
+	
 
 	// constructor
 	public OceanGrid(int rows, int cols) {
@@ -170,14 +165,14 @@ public class OceanGrid extends GameBoard {
 		int shipID = getGridLocationValue(row, col); // get ship or ocean value
 
 		if (shipID == -1) // build extension for open ocean image
-			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/blankOcean" + IMAGE_EXTENSION;
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/blankOcean";
 		else if (shipID == 0) // build extension for open ocean with miss
-			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/miss" + IMAGE_EXTENSION;
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/miss";
 		else { // build extension for correct ship with correct orientation and hit/miss
 			Ship ship = getShipWithID(shipID);
 			fileNameString = fileNameString + ship.getImagePathAtCoordinates(row, col);
 		}
-		return fileNameString;
+		return fileNameString + IMAGE_EXTENSION;
 	}
 
 }

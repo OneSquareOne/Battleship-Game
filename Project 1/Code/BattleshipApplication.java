@@ -5,7 +5,10 @@
 
 public class BattleshipApplication {
     public static void main(String[] args) {
-    Viewer mainView = new Viewer();
+        Controller mainController = new Controller();
+        Viewer mainView = new Viewer(mainController);
+        Model mainModel = new Model(mainController);
+
     }
     
 }

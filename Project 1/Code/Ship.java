@@ -15,7 +15,7 @@ public class Ship {
 	private int[][] hitPositions; // positions ship has been hit
 	private boolean isHorizontal;
 	private boolean isSunk;
-	private String imagePathName; // for building the rest of image fil
+	private String imagePathName; // for building the rest of image file path
 
 	// constructor
 	public Ship(String shipName, int iD, int shipSize, boolean horizontal, String fileName) {

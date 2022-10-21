@@ -1,15 +1,13 @@
 /* Controller is part of the MVC design pattern and is used as a point of communication between the model and view.  It is 
  * also responsible for initializing the game environments and connecting to another player.
  * Authors: Ryan Collins, John Schmidt
- * Last Update: 10/19/2022
+ * Last Update: 10/20/2022
  */
 
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Controller implements Subject, Observer {
-	private Viewer gameViewer = null; // this is so the controller can observe the viewer
-	private Observer viewObserver = null; // this is so the viewer can observe the controller
+public class Controller {
 
 	final int BOARD_ROWS = 10; // can be changed for larger board size
 	final int BOARD_COLS = 10;
@@ -21,6 +19,8 @@ public class Controller implements Subject, Observer {
 	private Player thisPlayer; // TODO: Move to model
 	private Player opponentShadow; // TODO:Move to model
 	private State thisPlayerState;
+	private Viewer gameViewer;
+	private Model gameModel;
 
 	// constructor
 	public Controller() {
@@ -80,50 +80,45 @@ public class Controller implements Subject, Observer {
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
 			System.out.println(thisPlayer.getName() + "'s the server.  The server fires first! \n");
-			rowColArray = shotPrompt(thisPlayer); // player1's turn
-			System.out.println("Sending current shot.\n"); // DEBUG for testing
-			thisPlayerRole.send(rowColArray);
-			System.out.println("Current shot sent.\n"); // DEBUG for testing
-			// bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
-			displayBothGrids(thisPlayer); // TODO: move to GUI
-			currentWinner = checkForWinner(thisPlayer, opponentShadow);
-
+			thisPlayerState.currentState = State.SELECTING_VOLLEY;
 		} else if (thisPlayerRole instanceof BattleShipClient) {
 			System.out.println(thisPlayer.getName() + "'s the client.  The server fires first!\n");
+			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 			// TODO: move to GUI
 		}
 
-		/*
-		 * while (currentWinner == -1) { // main play loop
-		 * 
-		 * System.out.println("Awaiting incoming volley!\n");
-		 * rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
-		 * bombardPlayer(rowColArray[0], rowColArray[1], opponentShadow, thisPlayer);
-		 * displayBothGrids(thisPlayer); // TODO: Move to GUI
-		 * currentWinner = checkForWinner(thisPlayer, opponentShadow);
-		 * 
-		 * if (currentWinner == -1) {
-		 * 
-		 * rowColArray = shotPrompt(thisPlayer); // this player's turn
-		 * System.out.println("Sending current shot.\n"); // DEBUG for testing
-		 * thisPlayerRole.send(rowColArray);
-		 * System.out.println("Current shot sent.\n"); // DEBUG for testing
-		 * bombardPlayer(rowColArray[0], rowColArray[1], thisPlayer, opponentShadow);
-		 * displayBothGrids(thisPlayer); // TODO: Move to GUI
-		 * currentWinner = checkForWinner(thisPlayer, opponentShadow);
-		 * }
-		 * }
-		 */
+		while (currentWinner == -1) { // main play loop
 
-		while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
-		} // wait for volley to be selected; currentState is changed when target button
-			// pressed
+			// this player's turn to shoot
+			if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
 
-		bombardPlayer(thisPlayer, opponentShadow);
-		thisPlayerRole.send(rowColArray);
-		currentWinner = checkForWinner(thisPlayer, opponentShadow);
-		if (currentWinner != -1) {
-			thisPlayerState.currentState = State.END_GAME; // move currentState to end game if winner declared
+				while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+				} // wait for volley to be selected from GUI
+
+				bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
+				thisPlayerRole.send(rowColArray); // send shot to real opponent
+
+				String imagePath = thisPlayer.getTargetGrid().getImagePath(
+						rowColArray[0], rowColArray[1]); // get correct image based on new board info
+
+				gameViewer.updateTargetGrid(rowColArray[0], rowColArray[1], imagePath);
+				currentWinner = checkForWinner(thisPlayer, opponentShadow); // changes state if winner
+			}
+
+			// if game isn't over, opponent's turn to shoot
+			if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
+
+				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
+				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
+				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
+
+				String imagePath = thisPlayer.getOceanGrid().getImagePath(
+						rowColArray[0], rowColArray[1]); // get correct image based on new board info
+
+				gameViewer.updateOceanGrid(rowColArray[0], rowColArray[1], imagePath);
+				thisPlayerState.currentState = State.SELECTING_VOLLEY;
+				currentWinner = checkForWinner(thisPlayer, opponentShadow);// changes state if winner
+			}
 		}
 
 		// declare winners
@@ -176,44 +171,46 @@ public class Controller implements Subject, Observer {
 		}
 	}
 
-	public static void placeShips(Player currentPlayer) {
-		System.out.print("Place ships for " + currentPlayer.getName() + " automatically (Yes or No?)"); // TODO: change
-																										// to GUI button
-		String choice = keyboard.next();
+	public boolean tryPlaceShip(int row, int col, int shipID) {
 
-		if (choice.equalsIgnoreCase("y") || choice.equalsIgnoreCase("yes")) { // place automatically
-			currentPlayer.getOceanGrid().autoPlaceShips();
-		} else {
-			displayOceanGrid(currentPlayer); // print grid for reference
-			for (int i = 0; i < currentPlayer.getOceanGrid().getNumberOfShips(); i++) { // place manually
+		boolean shipPlaced = false;
 
-				Ship tempShip = currentPlayer.getOceanGrid().getShipWithID(i + 1); // get ship with the ID i+1
-				boolean validPlacement = false;
-				while (!validPlacement) { // loop for validating correct placement
+		Ship tempShip = thisPlayer.getOceanGrid().getShipWithID(shipID); // get correct ship
+		
+		//if bow position is [-1,-1], then ship isn't placed yet, so place it
+		if(tempShip.getBowPosition()[0] == -1) {
 
-					int row, col;
-					boolean horizontal = false; // for passing to placeShip(), assumed vertical
-					System.out.print("Place the " + tempShip.getName() + "(" + tempShip.getSize()
-							+ " spaces) horizontally (H) or vertically (V)?: ");
-					String direction = keyboard.next();
-
-					if (direction.equalsIgnoreCase("h")) // user selected horizontal
-						horizontal = true;
-
-					System.out.print("Enter a row and column number separated by a space to place the "
-							+ tempShip.getName() + ":");
-					row = keyboard.nextInt();
-					col = keyboard.nextInt();
-					System.out.println("You entered Row: " + row + "  Column: " + col);
-
-					validPlacement = currentPlayer.getOceanGrid().placeShip(row, col, tempShip, horizontal);
-					if (!validPlacement) {
-						System.out.println("Not a valid placement. Try again.");
-					}
-					displayOceanGrid(currentPlayer);
-				}
-			}
 		}
+
+		/*
+		 * boolean validPlacement = false;
+		 * while (!validPlacement) { // loop for validating correct placement
+		 * 
+		 * int row, col;
+		 * boolean horizontal = false; // for passing to placeShip(), assumed vertical
+		 * System.out.print("Place the " + tempShip.getName() + "(" + tempShip.getSize()
+		 * + " spaces) horizontally (H) or vertically (V)?: ");
+		 * String direction = keyboard.next();
+		 * 
+		 * if (direction.equalsIgnoreCase("h")) // user selected horizontal
+		 * horizontal = true;
+		 * 
+		 * System.out.
+		 * print("Enter a row and column number separated by a space to place the "
+		 * + tempShip.getName() + ":");
+		 * row = keyboard.nextInt();
+		 * col = keyboard.nextInt();
+		 * System.out.println("You entered Row: " + row + "  Column: " + col);
+		 * 
+		 * validPlacement = currentPlayer.getOceanGrid().placeShip(row, col, tempShip,
+		 * horizontal);
+		 * if (!validPlacement) {
+		 * System.out.println("Not a valid placement. Try again.");
+		 * }
+		 * displayOceanGrid(currentPlayer);
+		 * }
+		 */
+
 	}
 
 	// prints empty board //TODO: will need to be removed or deactivated once GUI is
@@ -308,22 +305,8 @@ public class Controller implements Subject, Observer {
 		displayOceanGrid(currentPlayer);
 	}
 
-	// prompts user for shot, then returns array with [row,col] //TODO: replace with
-	// GUI input
-	public static int[] shotPrompt(Player currentPlayer) {
-
-		System.out.println(currentPlayer.getName() + "'s turn");
-		int[] coordinates = new int[2];
-		System.out.print("Enter row: ");
-		coordinates[0] = keyboard.nextInt();
-		System.out.print("Enter column: ");
-		coordinates[1] = keyboard.nextInt();
-		System.out.println();
-		return coordinates;
-	}
-
 	// processes a shot; precondition: current shot is set for shooting player
-	public static void bombardPlayer(Player shootingPlayer, Player receivingPlayer) {
+	public void bombardPlayer(Player shootingPlayer, Player receivingPlayer) {
 		int row = shootingPlayer.getOceanGrid().getCurrentShot()[0];
 		int col = shootingPlayer.getOceanGrid().getCurrentShot()[0];
 		boolean hit = receivingPlayer.getOceanGrid().processShot(); // process shot against receivingPlayer
@@ -346,37 +329,30 @@ public class Controller implements Subject, Observer {
 	}
 
 	// check for victory condition; returns winner # or -1 if no winner yet
-	public static int checkForWinner(Player player1, Player player2) {
+	public int checkForWinner(Player player1, Player player2) {
 		if (player1.getRemainingShips() == 0) {
 			player1.addLoss();
 			player2.addWin();
+			thisPlayerState.currentState = State.END_GAME;
 			return 2;
 		} else if (player2.getRemainingShips() == 0) {
 			player2.addLoss();
 			player1.addWin();
+			thisPlayerState.currentState = State.END_GAME;
 			return 1;
 		}
 		return -1;
 	}
 
-	// gets the filename for the appropriate image for ocean grid at coordinates
-	private String getOceanGridImageString(int row, int col) {
-		String fileNameString = "";
-		
-
-		return fileNameString;
+	// gets the filename for the appropriate image at given grid coordinates
+	// (ocean,miss,ship,hit)
+	private String getOceanGridImageString(int row, int col, Player player) {
+		return player.getOceanGrid().getImagePath(row, col);
 	}
 
 	// gets the filename for the appropriate image for target grid at coordinates
-	private String getTargetGridImageString(int row, int col) {
-		String fileNameString = "";
-
-		return fileNameString;
-	}
-
-	@Override
-	public void update() {
-
+	private String getTargetGridImageString(int row, int col, Player player) {
+		return player.getTargetGrid().getImagePath(row, col);
 	}
 
 	// this update is for updating the name of this console's player; TODO: tie to
@@ -404,9 +380,22 @@ public class Controller implements Subject, Observer {
 		}
 	}
 
-	// this update is for incoming shot information from this player's Viewer
-	public void update(int row, int col) {
+	// incoming shot information from the opponent's target grid
+	public void shotFromOpponent(int row, int col) {
+		if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
+			rowColArray[0] = row;
+			rowColArray[1] = col;
+			thisPlayer.getOceanGrid().setCurrentShot(row, col);
+			opponentShadow.getOceanGrid().setCurrentShot(row, col);
+			thisPlayerState.currentState = State.SELECTING_VOLLEY;
+		}
+	}
+
+	// incoming shot information from this player's Viewer
+	public void shotFromViewer(int row, int col) {
 		if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+			rowColArray[0] = row;
+			rowColArray[1] = col;
 			thisPlayer.getOceanGrid().setCurrentShot(row, col);
 			opponentShadow.getOceanGrid().setCurrentShot(row, col);
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
@@ -423,23 +412,13 @@ public class Controller implements Subject, Observer {
 		}
 	}
 
-	// registers the Viewer and Model controller; Precondition: the viewer must be
-	// registered first
-	public void registerObserver(Observer o) {
-		// TODO Auto-generated method stub
-
+	// allows the controller to access the model
+	public void registerModel(Model model) {
+		gameModel = model;
 	}
 
-	@Override
-	public void removeObserver(Observer o) {
-		// TODO Auto-generated method stub
-
+	// allows the controller to access the model
+	public void registerViewer(Viewer view) {
+		gameViewer = view;
 	}
-
-	@Override
-	public void notifyObservers() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

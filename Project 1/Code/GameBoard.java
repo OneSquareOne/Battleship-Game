@@ -9,9 +9,15 @@ public abstract class GameBoard {
 	private int[] currentShot; // 2 element array, shot location coordinates [row,col]
 	protected int totalRows;
 	protected int totalCols;
-	protected final String IMAGE_DIRECTORY = "../Images"; // directory of all images
+	protected final String IMAGE_DIRECTORY = "./Images"; // directory of all images
 	protected final String IMAGE_EXTENSION = ".jpg"; // extension used for ship images
-
+	protected final String AIRCRAFT_CARRIER_IMG_SUBDIRECTORY = "/AircraftCarrier";
+	protected final String BATTLESHIP_IMG_SUBDIRECTORY = "/Battleship";
+	protected final String CRUISER_IMG_SUBDIRECTORY = "/Cruiser";
+	protected final String SUBMARINE_IMG_SUBDIRECTORY = "/Submarine";
+	protected final String DESTROYER_IMG_SUBDIRECTORY = "/Destroyer";
+	protected final String OTHER_IMG_SUBDIRECTORY = "/Other";
+	
 	// constructor; initializes array to -1
 	public GameBoard(int rows, int cols) {
 		totalRows = rows;
