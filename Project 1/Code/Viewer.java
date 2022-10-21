@@ -24,10 +24,14 @@ public class Viewer {
 	private Controller gameController; // so the viewer be accessed by the controller
 	private JFrame frame = new JFrame();
 	private JPanel buttonGrid = new JPanel();
-	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
-	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
 	private JPanel buttonGrid2 = new JPanel();
 	private JPanel boats = new JPanel();
+	private JButton horizontalButton = new JButton("Horizontal");
+	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
+	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
+	private ImageIcon startup = new ImageIcon("./Images/Other/blankOcean.jpg");
+	private int shipID = 0; // saves ship selected for ship placement
+	private boolean horizontal = true;
 
 	// constructor
 	public Viewer(Controller controller) {
@@ -84,7 +88,7 @@ public class Viewer {
 					newButton.setBorderPainted(false);
 					buttonGrid.add(newButton);
 				} else { // create the buttons for selecting shot
-					newButton = new JButton(water); // current image on button
+					newButton = new JButton(startup); // current image on button
 					buttonTargetGridArray[i - 1][j - 1] = newButton; // add button to array for accessing later to
 																		// change images
 					// to hit
@@ -107,7 +111,7 @@ public class Viewer {
 		buttonGrid2.setSize(25, 25);
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				JButton newButton = new JButton(water);
+				JButton newButton = new JButton(startup);
 				newButton.setBorder(new LineBorder(Color.black));
 				buttonOceanGridArray[i][j] = newButton;
 				newButton.addActionListener(new oceanGridListener(i, j));
@@ -135,10 +139,6 @@ public class Viewer {
 		buttonOceanGridArray[row][col].setIcon(newImage);
 	}
 
-	// this will update the corresponding
-	private void shipSunk() {
-
-	}
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
 	// and send which button to the controller as a potential shot
@@ -155,35 +155,59 @@ public class Viewer {
 		// action performed; send shot to controller
 		public void actionPerformed(ActionEvent e) {
 			gameController.shotFromViewer(row, col);
-			System.out.println("target grid button pressed"); // DEBUG
 		}
 	}
 
 	// oceanGridListener will listen for buttons on the ocean grid to be pressed to
-	// send ship
-	// placement to the controller
+	// send ship placement to the controller
 	public class oceanGridListener implements ActionListener {
 		private int row;
 		private int col;
-		private int shipID;
 
 		// constructor
-		oceanGridListener(int row, int col, int ID) {
+		public oceanGridListener(int row, int col) {
 			this.row = row;
 			this.col = col;
-			shipID = ID;
 		}
 
 		// action performed; send ship placement to controller
 		public void actionPerformed(ActionEvent e) {
-			gameController.tryPlaceShip(row, col, shipID);
+
+			boolean successful = gameController.tryPlaceShip(row, col, shipID, horizontal);
+			if (successful) {
+				shipID = -1; // resets shipID so player needs to click another ship
+			}
 		}
 	}
 
-	// listens to vertical placement button
-	public class verticalListener implements ActionListener {
+	// selectedShipListener will act as the ship selection so that the ocean grid
+	// knows which
+	// ship needs to be placed; may need to be modified once drag and drop is
+	// implemented
+	public class selectedShipListener implements ActionListener {
+
+		int buttonID = -1;
+
+		public selectedShipListener(int ID) {
+			buttonID = ID;
+		}
+
 		public void actionPerformed(ActionEvent e) {
-			// TODO: fill out with updates to controller for vertical placement
+			shipID = buttonID;
+		}
+	}
+
+	// listens to horizontal placement button
+	public class horizontalListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			if (horizontal) { // button was horizontal, switch to vertical
+				horizontal = false;
+				horizontalButton.setText("Vertical");
+			} else { // button was vertical, switch to horizontal
+				horizontal = true;
+				horizontalButton.setText("Horizontal");
+			}
 		}
 	}
 

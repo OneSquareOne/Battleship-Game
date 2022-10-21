@@ -31,6 +31,20 @@ public class Player {
 		remainingShips = ocean.getNumberOfShips();
 	}
 	
+	//returns the number of ships that still need to be placed on ocean grid
+	public int getShipsToBePlaced(){
+		int shipsRemaining = ocean.getNumberOfShips();
+		Ship tempShip;
+		for(int ID = 1; ID <= ocean.getNumberOfShips(); ID++){
+			tempShip = ocean.getShipWithID(ID); //iterate over each ship
+			
+			if(tempShip.getBowPosition()[1] != -1){ // bow position column is not -1, then ship
+				shipsRemaining--;
+			}
+		}
+		return shipsRemaining;
+	}
+
 	//updates and returns the number of remaining ships
 	public int getRemainingShips() {
 		remainingShips = ocean.shipsLeft();

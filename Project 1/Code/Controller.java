@@ -171,46 +171,32 @@ public class Controller {
 		}
 	}
 
-	public boolean tryPlaceShip(int row, int col, int shipID) {
+	public boolean tryPlaceShip(int row, int col, int shipID, boolean horizontal) {
 
 		boolean shipPlaced = false;
+		if (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 
-		Ship tempShip = thisPlayer.getOceanGrid().getShipWithID(shipID); // get correct ship
-		
-		//if bow position is [-1,-1], then ship isn't placed yet, so place it
-		if(tempShip.getBowPosition()[0] == -1) {
+			if (shipID < 1) { // invalid ship ID
+				return shipPlaced;
+			}
 
+			Ship tempShip = thisPlayer.getOceanGrid().getShipWithID(shipID); // get correct ship
+
+			// if bow position is [-1,-1], then ship isn't placed yet, so try to place it
+			if (tempShip.getBowPosition()[0] == -1) {
+				shipPlaced = thisPlayer.getOceanGrid().placeShip(row, col, tempShip, horizontal);
+			}
+
+			if(shipPlaced){ //ship was placed; update state if that was the last one
+				System.out.println(tempShip.getName()+" placed successfully\n"); //TODO: move to GUI
+				
+				if(thisPlayer.getShipsToBePlaced() == 0){ //all ships placed
+					System.out.println("All ships placed successfully\n"); //TODO: move to GUI
+					thisPlayerState.currentState = State.SELECTING_VOLLEY;
+				}
+			}
 		}
-
-		/*
-		 * boolean validPlacement = false;
-		 * while (!validPlacement) { // loop for validating correct placement
-		 * 
-		 * int row, col;
-		 * boolean horizontal = false; // for passing to placeShip(), assumed vertical
-		 * System.out.print("Place the " + tempShip.getName() + "(" + tempShip.getSize()
-		 * + " spaces) horizontally (H) or vertically (V)?: ");
-		 * String direction = keyboard.next();
-		 * 
-		 * if (direction.equalsIgnoreCase("h")) // user selected horizontal
-		 * horizontal = true;
-		 * 
-		 * System.out.
-		 * print("Enter a row and column number separated by a space to place the "
-		 * + tempShip.getName() + ":");
-		 * row = keyboard.nextInt();
-		 * col = keyboard.nextInt();
-		 * System.out.println("You entered Row: " + row + "  Column: " + col);
-		 * 
-		 * validPlacement = currentPlayer.getOceanGrid().placeShip(row, col, tempShip,
-		 * horizontal);
-		 * if (!validPlacement) {
-		 * System.out.println("Not a valid placement. Try again.");
-		 * }
-		 * displayOceanGrid(currentPlayer);
-		 * }
-		 */
-
+		return shipPlaced;
 	}
 
 	// prints empty board //TODO: will need to be removed or deactivated once GUI is
@@ -399,6 +385,7 @@ public class Controller {
 			thisPlayer.getOceanGrid().setCurrentShot(row, col);
 			opponentShadow.getOceanGrid().setCurrentShot(row, col);
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
+			System.out.println(thisPlayer.getName() + " shoots at (" + row + ", " + col + ").");
 		}
 	}
 
