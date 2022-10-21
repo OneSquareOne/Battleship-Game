@@ -1,7 +1,7 @@
 /* OceanGrid is part of the Battle Ship project.  The OceanGrid class is an implementation of the GameBoard superclass.  It is used to 
  * represent the ocean grid (your view of your own grid and ships) in a Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/15/2022
+ * Updated: 10/20/2022
  */
 
 import java.util.Random; //for autoPlaceShip()
@@ -10,16 +10,22 @@ public class OceanGrid extends GameBoard {
 
 	private Ship[] shipArray;
 	private final int NUM_SHIPS = 5; // open for expansion
+	private final String AIRCRAFT_CARRIER_IMG_SUBDIRECTORY = "/AircraftCarrier";
+	private final String BATTLESHIP_IMG_SUBDIRECTORY = "/Battleship";
+	private final String CRUISER_IMG_SUBDIRECTORY = "/Cruiser";
+	private final String SUBMARINE_IMG_SUBDIRECTORY = "/Submarine";
+	private final String DESTROYER_IMG_SUBDIRECTORY = "/Destroyer";
+	private final String OTHER_IMG_SUBDIRECTORY = "/Other";
 
 	// constructor
 	public OceanGrid(int rows, int cols) {
 		super(rows, cols);
 		shipArray = new Ship[NUM_SHIPS];
-		shipArray[0] = new Ship("Carrier", 1, 5, true);
-		shipArray[1] = new Ship("Battleship", 2, 4, true);
-		shipArray[2] = new Ship("Cruiser", 3, 3, true);
-		shipArray[3] = new Ship("Submarine", 4, 3, true);
-		shipArray[4] = new Ship("Destroyer", 5, 2, true);
+		shipArray[0] = new Ship("Carrier", 1, 5, true, AIRCRAFT_CARRIER_IMG_SUBDIRECTORY);
+		shipArray[1] = new Ship("Battleship", 2, 4, true, BATTLESHIP_IMG_SUBDIRECTORY);
+		shipArray[2] = new Ship("Cruiser", 3, 3, true, CRUISER_IMG_SUBDIRECTORY);
+		shipArray[3] = new Ship("Submarine", 4, 3, true, SUBMARINE_IMG_SUBDIRECTORY);
+		shipArray[4] = new Ship("Destroyer", 5, 2, true, DESTROYER_IMG_SUBDIRECTORY);
 	}
 
 	// place ship; checks for valid placement
@@ -29,7 +35,7 @@ public class OceanGrid extends GameBoard {
 		ship1.setHorizontal(horizontal);
 
 		// check for invalid placement out of bounds
-		if (row < 0 || row > totalRows-1 || col < 0 || col > totalCols-1)
+		if (row < 0 || row > totalRows - 1 || col < 0 || col > totalCols - 1)
 			return false;
 
 		int length = 0; // ship length if it is horizontal
@@ -56,9 +62,10 @@ public class OceanGrid extends GameBoard {
 		} else { // ship is vertical
 			height = ship1.getSize();
 			for (int i = 0; i < height; i++) {
-				if ((row + i) > totalRows-1 || this.getGridLocationValue(row + i, col) > 0) { // check out of bounds and check
-																					// grid (greater than 0 means that a
-																					// ship is there already)
+				if ((row + i) > totalRows - 1 || this.getGridLocationValue(row + i, col) > 0) { // check out of bounds
+																								// and check
+					// grid (greater than 0 means that a
+					// ship is there already)
 					return false;
 				}
 			}
@@ -155,6 +162,22 @@ public class OceanGrid extends GameBoard {
 				remainingShips--;
 		}
 		return remainingShips;
+	}
+
+	// returns file path for image at game board location
+	public String getImagePath(int row, int col) {
+		String fileNameString = IMAGE_DIRECTORY; // add directory
+		int shipID = getGridLocationValue(row, col); // get ship or ocean value
+
+		if (shipID == -1) // build extension for open ocean image
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/blankOcean" + IMAGE_EXTENSION;
+		else if (shipID == 0) // build extension for open ocean with miss
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/miss" + IMAGE_EXTENSION;
+		else { // build extension for correct ship with correct orientation and hit/miss
+			Ship ship = getShipWithID(shipID);
+			fileNameString = fileNameString + ship.getImagePathAtCoordinates(row, col);
+		}
+		return fileNameString;
 	}
 
 }

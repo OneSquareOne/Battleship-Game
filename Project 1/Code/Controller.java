@@ -69,13 +69,13 @@ public class Controller implements Subject, Observer {
 		}
 
 		// place ships
-		placeShips(thisPlayer);//TODO: implement in gui
+		placeShips(thisPlayer);// TODO: implement in gui
 		System.out.println("Local Ships placed\n"); // TODO: move to GUI
 
 		// Players swap ocean grids, sever sends first
 		swapGrids();
 
-		System.out.println("Ships placement completed\n"); //TODO: move to gui
+		System.out.println("Ships placement completed\n"); // TODO: move to gui
 
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
@@ -330,6 +330,7 @@ public class Controller implements Subject, Observer {
 
 		if (hit) {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
+			String shipImage = getImageString(shipHit);
 			System.out.println(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!"); // TODO: move to
 																										// gui
 			shootingPlayer.getTargetGrid().isHit(row, col);
@@ -356,6 +357,21 @@ public class Controller implements Subject, Observer {
 			return 1;
 		}
 		return -1;
+	}
+
+	// gets the filename for the appropriate image for ocean grid at coordinates
+	private String getOceanGridImageString(int row, int col) {
+		String fileNameString = "";
+		
+
+		return fileNameString;
+	}
+
+	// gets the filename for the appropriate image for target grid at coordinates
+	private String getTargetGridImageString(int row, int col) {
+		String fileNameString = "";
+
+		return fileNameString;
 	}
 
 	@Override
