@@ -29,8 +29,11 @@ public class Controller {
 
 	public void playGame() throws IOException {
 
+		String name = "name";
+		/* 
 		while (thisPlayerState.currentState == State.SETUP) {
 		} // wait for setup to complete
+		*/
 
 		System.out.print("Enter your name: "); // TODO: move this to the GUI
 		thisPlayer = new Player(name); // move to model
@@ -43,9 +46,12 @@ public class Controller {
 		// same console
 		opponentShadow = new Player("Opponent"); // move to model
 
+		/*
 		while (thisPlayerState.currentState == State.SELECTING_HOST) {
 		} // wait for host selection
+		*/
 
+		
 		System.out.print("Enter Server device name: "); // TODO: move to gui
 
 		while (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
@@ -96,6 +102,7 @@ public class Controller {
 
 				bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
 				thisPlayerRole.send(rowColArray); // send shot to real opponent
+				gameViewer.updateTargetGrid(BOARD_ROWS, BOARD_COLS, name);
 
 				String imagePath = thisPlayer.getTargetGrid().getImagePath(
 						rowColArray[0], rowColArray[1]); // get correct image based on new board info
@@ -110,6 +117,8 @@ public class Controller {
 				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
 				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
 				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
+				String filePath = getOceanGridImageString(rowColArray[0], rowColArray[1]);
+				gameViewer.updateOceanGrid(rowColArray[0], rowColArray[1], filePath);
 
 				String imagePath = thisPlayer.getOceanGrid().getImagePath(
 						rowColArray[0], rowColArray[1]); // get correct image based on new board info
@@ -293,12 +302,11 @@ public class Controller {
 	// processes a shot; precondition: current shot is set for shooting player
 	public void bombardPlayer(Player shootingPlayer, Player receivingPlayer) {
 		int row = shootingPlayer.getOceanGrid().getCurrentShot()[0];
-		int col = shootingPlayer.getOceanGrid().getCurrentShot()[0];
+		int col = shootingPlayer.getOceanGrid().getCurrentShot()[1];
 		boolean hit = receivingPlayer.getOceanGrid().processShot(); // process shot against receivingPlayer
 
 		if (hit) {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
-			String shipImage = getImageString(shipHit);
 			System.out.println(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!"); // TODO: move to
 																										// gui
 			shootingPlayer.getTargetGrid().isHit(row, col);
@@ -331,13 +339,13 @@ public class Controller {
 
 	// gets the filename for the appropriate image at given grid coordinates
 	// (ocean,miss,ship,hit)
-	private String getOceanGridImageString(int row, int col, Player player) {
-		return player.getOceanGrid().getImagePath(row, col);
+	private String getOceanGridImageString(int row, int col) {
+		return thisPlayer.getOceanGrid().getImagePath(row, col);
 	}
 
 	// gets the filename for the appropriate image for target grid at coordinates
-	private String getTargetGridImageString(int row, int col, Player player) {
-		return player.getTargetGrid().getImagePath(row, col);
+	private String getTargetGridImageString(int row, int col) {
+		return thisPlayer.getTargetGrid().getImagePath(row, col);
 	}
 
 	// this update is for updating the name of this console's player; TODO: tie to
