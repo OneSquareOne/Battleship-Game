@@ -1,3 +1,8 @@
+/* Viewer is the GUI and view part of the MVC pattern used for the Battleship game. It takes input
+ * from the user and sends it to the controller via action listeners.
+ * Authors: Ryan Collins, John Schmidt
+ * Last Updated: 10/22/2022
+ */
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,18 +31,18 @@ public class Viewer {
 	private JPanel buttonGrid = new JPanel();
 	private JPanel buttonGrid2 = new JPanel();
 	private JPanel boats = new JPanel();
-	private JButton horizontalButton = new JButton("Horizontal");
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
-	private ImageIcon startup = new ImageIcon("./Images/Other/blankOcean.jpg");
+	private ImageIcon startup;
 	private int shipID = 0; // saves ship selected for ship placement
 	private boolean horizontal = true;
 
 	// constructor
-	public Viewer(Controller controller) {
+	public Viewer() {
 
-		gameController = controller; // for registering viewer as an observer of the controller
-		gameController.registerViewer(this);// register viewer
+		//gameController = controller; // for registering viewer as an observer of the controller
+		//gameController.registerViewer(this);// register viewer
+		startup = new ImageIcon("./Images/Other/blankOcean.jpg");
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		frame.setBackground(Color.LIGHT_GRAY);
@@ -45,9 +50,12 @@ public class Viewer {
 		createTargetGrid();
 		createOceanGrid();
 		createBoatArea();
+		createHorizontalButton();
+		createAutoPlaceShipsButton();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(null);
 		frame.setSize(1500, 900);
+		
 		frame.setVisible(true);
 	}
 
@@ -111,6 +119,7 @@ public class Viewer {
 		buttonGrid2.setSize(25, 25);
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
+				startup = new ImageIcon("./Images/Other/blankOcean.jpg");
 				JButton newButton = new JButton(startup);
 				newButton.setBorder(new LineBorder(Color.black));
 				buttonOceanGridArray[i][j] = newButton;
@@ -129,6 +138,20 @@ public class Viewer {
 		frame.add(boats);
 	}
 
+	private void createHorizontalButton() {
+		JButton newButton = new JButton("Horizontal");
+		newButton.setBounds(950, 25, 200, 50);
+		newButton.addActionListener(new horizontalListener(newButton));
+		frame.add(newButton);
+	}
+
+	private void createAutoPlaceShipsButton(){
+		JButton newButton = new JButton("Automatic Placement");
+		newButton.setBounds(1200, 25, 200, 50);
+		newButton.addActionListener(new automaticPlacementListener());
+		frame.add(newButton);
+	}
+
 	public void updateTargetGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonOceanGridArray[row][col].setIcon(newImage);
@@ -138,7 +161,6 @@ public class Viewer {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonOceanGridArray[row][col].setIcon(newImage);
 	}
-
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
 	// and send which button to the controller as a potential shot
@@ -199,17 +221,32 @@ public class Viewer {
 
 	// listens to horizontal placement button
 	public class horizontalListener implements ActionListener {
+		JButton callingButton;
+
+		// constructor captures the button to assign the new text to so you don't have
+		// to keep track of the button in the data members
+		public horizontalListener(JButton button) {
+			callingButton = button;
+		}
 
 		public void actionPerformed(ActionEvent e) {
 			if (horizontal) { // button was horizontal, switch to vertical
 				horizontal = false;
-				horizontalButton.setText("Vertical");
+				callingButton.setText("Vertical");
 			} else { // button was vertical, switch to horizontal
 				horizontal = true;
-				horizontalButton.setText("Horizontal");
+				callingButton.setText("Horizontal");
 			}
 		}
 	}
+
+	//listens to the automatic placement button
+	public class automaticPlacementListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			gameController.autoPlaceShips();
+		}
+	}
+
 
 	public class newGameListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {

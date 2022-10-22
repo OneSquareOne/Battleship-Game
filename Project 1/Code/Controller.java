@@ -65,11 +65,10 @@ public class Controller {
 		// Players swap names, sever sends first
 		swapNames();
 
+		// ships placed in GUI
 		while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 		}
 
-		// place ships
-		placeShips(thisPlayer);// TODO: implement in gui
 		System.out.println("Local Ships placed\n"); // TODO: move to GUI
 
 		// Players swap ocean grids, sever sends first
@@ -187,11 +186,11 @@ public class Controller {
 				shipPlaced = thisPlayer.getOceanGrid().placeShip(row, col, tempShip, horizontal);
 			}
 
-			if(shipPlaced){ //ship was placed; update state if that was the last one
-				System.out.println(tempShip.getName()+" placed successfully\n"); //TODO: move to GUI
-				
-				if(thisPlayer.getShipsToBePlaced() == 0){ //all ships placed
-					System.out.println("All ships placed successfully\n"); //TODO: move to GUI
+			if (shipPlaced) { // ship was placed; update state if that was the last one
+				System.out.println(tempShip.getName() + " placed successfully\n"); // TODO: move to GUI
+
+				if (thisPlayer.getShipsToBePlaced() == 0) { // all ships placed
+					System.out.println("All ships placed successfully\n"); // TODO: move to GUI
 					thisPlayerState.currentState = State.SELECTING_VOLLEY;
 				}
 			}
@@ -390,12 +389,14 @@ public class Controller {
 	}
 
 	// this update is for placing ships automatically
-	public void updateAutoPlaceShips() {
-		thisPlayer.getOceanGrid().autoPlaceShips();
-		if (thisPlayerRole instanceof BattleShipServer) {
-			thisPlayerState.currentState = State.SELECTING_VOLLEY;
-		} else {
-			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
+	public void autoPlaceShips() {
+		if (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
+			thisPlayer.getOceanGrid().autoPlaceShips();
+			if (thisPlayerRole instanceof BattleShipServer) {
+				thisPlayerState.currentState = State.SELECTING_VOLLEY;
+			} else {
+				thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
+			}
 		}
 	}
 

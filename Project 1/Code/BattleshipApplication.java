@@ -5,9 +5,9 @@
 
 public class BattleshipApplication {
     public static void main(String[] args) {
-        Controller mainController = new Controller();
-        Viewer mainView = new Viewer(mainController);
-        Model mainModel = new Model(mainController);
+       // Controller mainController = new Controller();
+        Viewer mainView = new Viewer();
+       // Model mainModel = new Model(mainController);
 
     }
     
