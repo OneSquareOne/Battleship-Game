@@ -5,7 +5,6 @@
  */
 
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Controller {
 
@@ -27,41 +26,26 @@ public class Controller {
 		thisPlayerState = new State();
 	}
 
-	public void playGame() throws IOException {
+	public void playGame() throws IOException, InterruptedException {
 
 		String name = "name";
 		/* 
 		while (thisPlayerState.currentState == State.SETUP) {
 		} // wait for setup to complete
 		*/
+		thisPlayerState.currentState = State.SELECTING_HOST;
 
 		System.out.print("Enter your name: "); // TODO: move this to the GUI
-		thisPlayer = new Player(name); // move to model
+		thisPlayer = new Player(name); //TODO: move to model
+		opponentShadow = new Player("Opponent"); //TODO: move to model
 
-		// Shadow is for maintaining a copy of the opponents grid so less communication
-		// is needed between players. After current shot is sent to opponent, all game
-		// logic is applied to the shadow, and the opponent does the same. Shadow should
-		// always be an exact copy of the second player. This also minimizes the need to
-		// rewrite code from the original version where both players were stored on the
-		// same console
-		opponentShadow = new Player("Opponent"); // move to model
-
-		/*
 		while (thisPlayerState.currentState == State.SELECTING_HOST) {
 		} // wait for host selection
-		*/
-
 		
 		System.out.print("Enter Server device name: "); // TODO: move to gui
 
 		while (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
 		} // wait for entering of server name from client, skipped if server
-
-		// if selection was client, thisPlayerRole will still be null
-		if (thisPlayerRole == null) {
-			thisPlayerRole = new BattleShipClient(serverName);
-			thisPlayerState.currentState = State.SHIP_PLACEMENT;
-		}
 
 		// sets up the client side or server side of the connection, based on the
 		// application's role; this is a BLOCKING method call (client and server
@@ -348,31 +332,6 @@ public class Controller {
 		return thisPlayer.getTargetGrid().getImagePath(row, col);
 	}
 
-	// this update is for updating the name of this console's player; TODO: tie to
-	// name box
-	public void update(String playerOrServerName) {
-		if (thisPlayerState.currentState == State.SETUP) {
-			name = playerOrServerName;
-			thisPlayerState.currentState = State.SELECTING_HOST; // moves to next state
-		} else if (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
-			serverName = playerOrServerName;
-		}
-	}
-
-	// this update is for updating which player is the server
-	public void update(boolean isServer) {
-		if (thisPlayerState.currentState == State.SELECTING_HOST) { // in server setup state
-			if (isServer) {
-				thisPlayerRole = new BattleShipServer();
-				System.out.print("You are the " + thisPlayerRole.getRole() + ". Your device name is: "
-						+ ((BattleShipServer) thisPlayerRole).getServerName()); // TODO: move to gui
-				thisPlayerState.currentState = State.SHIP_PLACEMENT; // skip host name entry
-			} else {
-				thisPlayerState.currentState = State.CONNECT_TO_HOST; // move to receive host name
-			}
-		}
-	}
-
 	// incoming shot information from the opponent's target grid
 	public void shotFromOpponent(int row, int col) {
 		if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
@@ -417,4 +376,25 @@ public class Controller {
 	public void registerViewer(Viewer view) {
 		gameViewer = view;
 	}
+
+	//chooses the server role for this machine
+	public void selectServerRole(){
+		if(thisPlayerState.currentState == State.SELECTING_HOST){
+			thisPlayerRole = new BattleShipServer();
+			System.out.println("Status changed to ship_placement");
+			thisPlayerState.currentState = State.SHIP_PLACEMENT;
+		}
+	}
+
+	//selects the client role for this machine
+	public void selectClientRole(){
+		if (thisPlayerState.currentState == State.SELECTING_HOST) {
+			serverName = ""; //DEBUG just for local play
+			thisPlayerRole = new BattleShipClient(serverName);
+			thisPlayerState.currentState = State.SHIP_PLACEMENT;
+		}
+	}
+
+
 }
+

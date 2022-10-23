@@ -15,9 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.ColorUIResource;
 
 public class Viewer {
 
@@ -44,7 +42,7 @@ public class Viewer {
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
 		createTargetGrid();
-		//createOceanGrid();
+		createOceanGrid();
 		createBoatArea();
 		createHorizontalButton();
 		createAutoPlaceShipsButton();
@@ -144,8 +142,9 @@ public class Viewer {
 
 	private void createBoatArea() {
 		JPanel boats = new JPanel();
-		ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg");
-		boats.setBounds(750, 175, 650, 150);
+		//ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for background
+		boats.setBounds(740, 160, 610, 145);
+		boats.setBackground(Color.blue);
 
 		ImageIcon carrier = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
@@ -192,6 +191,10 @@ public class Viewer {
 		boats.add(buttonShipArray[2]);
 		boats.add(buttonShipArray[3]);
 		boats.add(buttonShipArray[4]);
+
+		// buttonShipArray[4].setEnabled(false); //disables and grays out ship button
+		// buttonShipArray[4].setIcon(null); //removes button entirely from view,
+		// reorganizes other buttons
 
 		frame.add(boats);
 	}
@@ -325,12 +328,14 @@ public class Viewer {
 
 	public class serverListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			//if(gameController.)
 			JButton thisButton = (JButton) e.getSource();
 			thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
 			thisButton.setText("You are: Server");
 			client.setText("");
 			thisButton.setEnabled(false);
 			client.setEnabled(false);
+			gameController.selectServerRole();
 		}
 	}
 

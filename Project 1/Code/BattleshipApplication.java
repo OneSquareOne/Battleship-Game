@@ -6,10 +6,11 @@ import java.io.IOException;
  */
 
 public class BattleshipApplication {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Controller mainController = new Controller();
         Viewer mainView = new Viewer(mainController);
         Model mainModel = new Model(mainController);
+        mainController.playGame();
 
     }
 

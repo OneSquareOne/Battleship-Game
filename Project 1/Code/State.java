@@ -5,14 +5,14 @@
  * Last Update: 10/19/2022
  */
 public class State {
-    final static int SETUP = 0;
-    final static int SELECTING_HOST = 1;
-    final static int CONNECT_TO_HOST = 2;
-    final static int SHIP_PLACEMENT = 3;
-    final static int SELECTING_VOLLEY = 4;
-    final static int AWAITING_INCOMING_VOLLEY = 5;
-    final static int END_GAME = 6;
-    public int currentState;
+    static volatile int SETUP = 0;
+    static volatile int SELECTING_HOST = 1;
+    static volatile int CONNECT_TO_HOST = 2;
+    static volatile int SHIP_PLACEMENT = 3;
+    static volatile int SELECTING_VOLLEY = 4;
+    static volatile int AWAITING_INCOMING_VOLLEY = 5;
+    static volatile int END_GAME = 6;
+    public volatile int currentState;
 
     public State(){
         currentState = SETUP;
