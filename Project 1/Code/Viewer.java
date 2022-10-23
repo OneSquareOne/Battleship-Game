@@ -10,12 +10,14 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
+import javax.swing.plaf.ColorUIResource;
 
 public class Viewer {
 
@@ -23,19 +25,17 @@ public class Viewer {
 	private JFrame frame;
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
-	private JButton buttonShipArray[]; //used for updating ship boat area
-	private JButton server; //buttons are created so they are accessible to other action listeners
+	private JButton buttonShipArray[]; // used for updating ship boat area
+	private JButton server; // buttons are created so they are accessible to other action listeners
 	private JButton client;
 	private JButton horizontalButton;
 	private JButton autoPlaceButton;
 	private boolean horizontal = true;
 	private ImageIcon startup;
 	private int shipID = 0; // saves ship selected for ship placement
-	
 
 	// constructor
 	public Viewer(Controller controller) {
-
 		gameController = controller; // for registering viewer as an observer of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
@@ -43,9 +43,8 @@ public class Viewer {
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
-		frame.setBackground(Color.LIGHT_GRAY);
 		createTargetGrid();
-		createOceanGrid();
+		//createOceanGrid();
 		createBoatArea();
 		createHorizontalButton();
 		createAutoPlaceShipsButton();
@@ -53,8 +52,7 @@ public class Viewer {
 		createClientButton();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(null);
-		frame.setSize(1500, 900);
-
+		frame.setSize(1500, 1000);
 		frame.setVisible(true);
 	}
 
@@ -110,14 +108,19 @@ public class Viewer {
 				}
 			}
 		}
-		buttonGrid.setBounds(50, 150, 650, 650);
+		buttonGrid.setBounds(25, 250, 650, 650);
+
+		JLabel targetArea = new JLabel("Target Area");
+		targetArea.setBounds(300, 900, 200, 50);
+		targetArea.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+
+		frame.add(targetArea);
 		frame.add(buttonGrid);
 	}
 
 	private void createOceanGrid() {
 		JPanel buttonGrid2 = new JPanel();
 		buttonGrid2.setLayout(new GridLayout(10, 10));
-
 		buttonGrid2.setSize(25, 25);
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
@@ -129,15 +132,20 @@ public class Viewer {
 			}
 		}
 		buttonGrid2.getComponent(0);
-		buttonGrid2.setBounds(800, 350, 450, 450);
+		buttonGrid2.setBounds(750, 309, 591, 591);
+
+		JLabel oceanGrid = new JLabel("Player's Grid");
+		oceanGrid.setBounds(950, 900, 200, 50);
+		oceanGrid.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+
+		frame.add(oceanGrid);
 		frame.add(buttonGrid2);
 	}
 
 	private void createBoatArea() {
 		JPanel boats = new JPanel();
 		ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg");
-		boats.setBackground(Color.red);
-		boats.setBounds(800, 175, 450, 160);
+		boats.setBounds(750, 175, 650, 150);
 
 		ImageIcon carrier = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
@@ -146,8 +154,45 @@ public class Viewer {
 		buttonShipArray[0].setOpaque(false);
 		buttonShipArray[0].setContentAreaFilled(false);
 		buttonShipArray[0].setBorderPainted(false);
+
+		ImageIcon battleship = new ImageIcon("./Images/Battleship/Battleship 4-1.png");
+		buttonShipArray[1] = new JButton(battleship); // first "button" is just a blank space
+		buttonShipArray[1].addActionListener(new selectedShipListener(2));
+		buttonShipArray[1].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		buttonShipArray[1].setOpaque(false);
+		buttonShipArray[1].setContentAreaFilled(false);
+		buttonShipArray[1].setBorderPainted(false);
+
+		ImageIcon cruiser = new ImageIcon("./Images/Cruiser/Cru1.png");
+		buttonShipArray[2] = new JButton(cruiser); // first "button" is just a blank space
+		buttonShipArray[2].addActionListener(new selectedShipListener(3));
+		buttonShipArray[2].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		buttonShipArray[2].setOpaque(false);
+		buttonShipArray[2].setContentAreaFilled(false);
+		buttonShipArray[2].setBorderPainted(false);
+
+		ImageIcon submarine = new ImageIcon("./Images/Submarine/Sub1.png");
+		buttonShipArray[3] = new JButton(submarine); // first "button" is just a blank space
+		buttonShipArray[3].addActionListener(new selectedShipListener(4));
+		buttonShipArray[3].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		buttonShipArray[3].setOpaque(false);
+		buttonShipArray[3].setContentAreaFilled(false);
+		buttonShipArray[3].setBorderPainted(false);
+
+		ImageIcon destroyer = new ImageIcon("./Images/Destroyer/dest1.png");
+		buttonShipArray[4] = new JButton(destroyer); // first "button" is just a blank space
+		buttonShipArray[4].addActionListener(new selectedShipListener(5));
+		buttonShipArray[4].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		buttonShipArray[4].setOpaque(false);
+		buttonShipArray[4].setContentAreaFilled(false);
+		buttonShipArray[4].setBorderPainted(false);
+
 		boats.add(buttonShipArray[0]);
-		
+		boats.add(buttonShipArray[1]);
+		boats.add(buttonShipArray[2]);
+		boats.add(buttonShipArray[3]);
+		boats.add(buttonShipArray[4]);
+
 		frame.add(boats);
 	}
 
@@ -182,6 +227,8 @@ public class Viewer {
 		client.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(client);
 	}
+
+	// private void create
 
 	public void updateTargetGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
@@ -228,7 +275,7 @@ public class Viewer {
 
 			boolean successful = gameController.tryPlaceShip(row, col, shipID, horizontal);
 			if (successful) {
-				buttonShipArray[shipID-1].setEnabled(false); //sets ship button to disabled
+				buttonShipArray[shipID - 1].setEnabled(false); // sets ship button to disabled
 				shipID = -1; // resets shipID so player needs to click another ship
 				autoPlaceButton.setEnabled(false);
 			}
@@ -241,7 +288,7 @@ public class Viewer {
 	// implemented
 	public class selectedShipListener implements ActionListener {
 
-		int buttonID = -1;
+		int buttonID;
 
 		public selectedShipListener(int ID) {
 			buttonID = ID;
