@@ -142,9 +142,10 @@ public class Viewer {
 
 	private void createBoatArea() {
 		JPanel boats = new JPanel();
-		//ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for background
+		// ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for
+		// background
 		boats.setBounds(740, 160, 610, 145);
-		boats.setBackground(Color.blue);
+		//boats.setBackground(Color.blue); //DEBUG need to remove for looks
 
 		ImageIcon carrier = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
@@ -205,6 +206,7 @@ public class Viewer {
 		horizontalButton.addActionListener(new horizontalListener());
 		horizontalButton.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(horizontalButton);
+		horizontalButton.setEnabled(false);
 	}
 
 	private void createAutoPlaceShipsButton() {
@@ -213,6 +215,7 @@ public class Viewer {
 		autoPlaceButton.addActionListener(new automaticPlacementListener());
 		autoPlaceButton.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(autoPlaceButton);
+		autoPlaceButton.setEnabled(false); //keep disabled until needed
 	}
 
 	private void createServerButton() {
@@ -323,19 +326,23 @@ public class Viewer {
 			autoPlaceButton.setText("Ships placed automatically");
 			autoPlaceButton.setEnabled(false);
 			horizontalButton.setEnabled(false);
+			horizontalButton.setBorderPainted(false);
 		}
 	}
 
 	public class serverListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			//if(gameController.)
-			JButton thisButton = (JButton) e.getSource();
-			thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
-			thisButton.setText("You are: Server");
-			client.setText("");
-			thisButton.setEnabled(false);
-			client.setEnabled(false);
-			gameController.selectServerRole();
+			if (gameController.getCurrentState() == State.SELECTING_HOST) {
+				JButton thisButton = (JButton) e.getSource();
+				thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
+				thisButton.setText("You are: Server");
+				client.setText("");
+				thisButton.setEnabled(false);
+				client.setEnabled(false);
+				gameController.selectServerRole();
+				horizontalButton.setEnabled(true); //horizontal button ready for input
+				autoPlaceButton.setEnabled(true); //autoPlace button ready for input
+			}
 		}
 	}
 
@@ -347,6 +354,9 @@ public class Viewer {
 			server.setText("");
 			thisButton.setEnabled(false);
 			server.setEnabled(false);
+			server.setBorderPainted(false);
+			horizontalButton.setEnabled(true); // horizontal button ready for input
+			autoPlaceButton.setEnabled(true); // autoPlace button ready for input
 		}
 	}
 

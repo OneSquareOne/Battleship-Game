@@ -395,6 +395,10 @@ public class Controller {
 		}
 	}
 
+	public int getCurrentState(){
+		return thisPlayerState.currentState;
+	}
+
 
 }
 
