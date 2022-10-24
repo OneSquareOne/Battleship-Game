@@ -4,18 +4,11 @@
  * Last Updated: 10/22/2022
  */
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.text.BadLocationException;
 
 public class Viewer {
 
@@ -28,12 +21,13 @@ public class Viewer {
 	private JButton client;
 	private JButton horizontalButton;
 	private JButton autoPlaceButton;
+	protected static JTextArea notificationArea;
 	private boolean horizontal = true;
 	private ImageIcon startup;
 	private int shipID = 0; // saves ship selected for ship placement
 
 	// constructor
-	public Viewer(Controller controller) {
+	public Viewer(Controller controller) throws BadLocationException {
 		gameController = controller; // for registering viewer as an observer of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
@@ -41,6 +35,8 @@ public class Viewer {
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
+		createNameEntryArea();
+		createNotificationArea();
 		createTargetGrid();
 		createOceanGrid();
 		createBoatArea();
@@ -145,7 +141,7 @@ public class Viewer {
 		// ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for
 		// background
 		boats.setBounds(740, 160, 610, 145);
-		//boats.setBackground(Color.blue); //DEBUG need to remove for looks
+		// boats.setBackground(Color.blue); //DEBUG need to remove for looks
 
 		ImageIcon carrier = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
@@ -193,11 +189,65 @@ public class Viewer {
 		boats.add(buttonShipArray[3]);
 		boats.add(buttonShipArray[4]);
 
+
 		// buttonShipArray[4].setEnabled(false); //disables and grays out ship button
-		// buttonShipArray[4].setIcon(null); //removes button entirely from view,
+		// buttonShipArray[4].setVisible(false); //removes button entirely from view,
 		// reorganizes other buttons
+		
 
 		frame.add(boats);
+	}
+
+	private void createNameEntryArea() {
+		JTextField nameArea = new JTextField();
+		nameArea.setText("Enter Name:");
+		nameArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
+		nameArea.setForeground(Color.lightGray);
+		nameArea.setBounds(84, 50, 250, 50);
+		nameArea.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String text = nameArea.getText(); // gets text from field
+				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
+				if (stateChanged) {
+					nameArea.setEnabled(false);
+					nameArea.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+					nameArea.setDisabledTextColor(Color.black);
+					nameArea.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+					nameArea.setOpaque(false);
+				}
+			}
+		});
+
+		// focus listener allows text to go away when the box is focused on for keyboard
+		// entry
+		nameArea.addFocusListener(new FocusListener() {
+			public void focusGained(FocusEvent e) { // clicked on text box
+				if (nameArea.getText().equals("Enter Name:")) {
+					nameArea.setText("");
+					nameArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
+					nameArea.setForeground(Color.BLACK);
+				}
+			}
+
+			public void focusLost(FocusEvent e) { // clicked away from text box
+				if (nameArea.getText().isBlank()) {
+					nameArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
+					nameArea.setForeground(Color.lightGray);
+					nameArea.setText("Enter Name:");
+				}
+			}
+		});
+		frame.add(nameArea);
+	}
+
+	private void createNotificationArea() throws BadLocationException {
+		notificationArea = new MyTextArea();
+		notificationArea.setBounds(84, 110, 591, 130);
+		notificationArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
+		notificationArea.setForeground(Color.black);
+		notificationArea.setBackground(new Color(1, 1, 1, (float) 0.01));
+		frame.add(notificationArea);
+		notificationArea.setEditable(false);
 	}
 
 	private void createHorizontalButton() {
@@ -215,7 +265,7 @@ public class Viewer {
 		autoPlaceButton.addActionListener(new automaticPlacementListener());
 		autoPlaceButton.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(autoPlaceButton);
-		autoPlaceButton.setEnabled(false); //keep disabled until needed
+		autoPlaceButton.setEnabled(false); // keep disabled until needed
 	}
 
 	private void createServerButton() {
@@ -244,6 +294,15 @@ public class Viewer {
 	public void updateOceanGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonOceanGridArray[row][col].setIcon(newImage);
+	}
+
+	// adds text to the notification area
+	public void addNotification(String newMessage) {
+		try {
+			notificationArea.getDocument().insertString(0, " " + newMessage + "\n", null);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
@@ -340,8 +399,8 @@ public class Viewer {
 				thisButton.setEnabled(false);
 				client.setEnabled(false);
 				gameController.selectServerRole();
-				horizontalButton.setEnabled(true); //horizontal button ready for input
-				autoPlaceButton.setEnabled(true); //autoPlace button ready for input
+				horizontalButton.setEnabled(true); // horizontal button ready for input
+				autoPlaceButton.setEnabled(true); // autoPlace button ready for input
 			}
 		}
 	}

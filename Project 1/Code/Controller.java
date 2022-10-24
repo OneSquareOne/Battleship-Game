@@ -28,21 +28,22 @@ public class Controller {
 
 	public void playGame() throws IOException, InterruptedException {
 
-		String name = "name";
-		/* 
+		gameViewer.addNotification("Player, enter your name. ");
+
 		while (thisPlayerState.currentState == State.SETUP) {
 		} // wait for setup to complete
-		*/
-		thisPlayerState.currentState = State.SELECTING_HOST;
 
-		System.out.print("Enter your name: "); // TODO: move this to the GUI
-		thisPlayer = new Player(name); //TODO: move to model
-		opponentShadow = new Player("Opponent"); //TODO: move to model
+		gameViewer.addNotification(name + ", select server or client.");
+		thisPlayerState.currentState = State.SELECTING_HOST; // TODO: remove when name added
+
+		thisPlayer = new Player(name); // TODO: move to model
+		opponentShadow = new Player("Opponent"); // TODO: move to model
 
 		while (thisPlayerState.currentState == State.SELECTING_HOST) {
 		} // wait for host selection
-		
-		System.out.print("Enter Server device name: "); // TODO: move to gui
+
+		if (thisPlayerState.currentState == State.CONNECT_TO_HOST) // prompt for client
+			gameViewer.addNotification(name + ", enter the server's device name.");
 
 		while (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
 		} // wait for entering of server name from client, skipped if server
@@ -377,28 +378,37 @@ public class Controller {
 		gameViewer = view;
 	}
 
-	//chooses the server role for this machine
-	public void selectServerRole(){
-		if(thisPlayerState.currentState == State.SELECTING_HOST){
+	// chooses the server role for this machine
+	public void selectServerRole() {
+		if (thisPlayerState.currentState == State.SELECTING_HOST) {
 			thisPlayerRole = new BattleShipServer();
 			System.out.println("Status changed to ship_placement");
 			thisPlayerState.currentState = State.SHIP_PLACEMENT;
 		}
 	}
 
-	//selects the client role for this machine
-	public void selectClientRole(){
+	// selects the client role for this machine
+	public void selectClientRole() {
 		if (thisPlayerState.currentState == State.SELECTING_HOST) {
-			serverName = ""; //DEBUG just for local play
+			serverName = ""; // DEBUG just for local play
 			thisPlayerRole = new BattleShipClient(serverName);
 			thisPlayerState.currentState = State.SHIP_PLACEMENT;
 		}
 	}
 
-	public int getCurrentState(){
+	// returns the current player's state
+	public int getCurrentState() {
 		return thisPlayerState.currentState;
 	}
 
-
+	// sets this player's name, changes state
+	public boolean setPlayerName(String newName) {
+		boolean stateChanged = false;
+		if (thisPlayerState.currentState == State.SETUP) {
+			name = newName;
+			thisPlayerState.currentState = State.SELECTING_HOST;
+			stateChanged = true;
+		}
+		return stateChanged;
+	}
 }
-
