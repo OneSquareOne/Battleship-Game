@@ -31,7 +31,7 @@ public class Viewer {
 		gameController = controller; // for registering viewer as an observer of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
-		startup = new ImageIcon("./Images/Other/blankOcean.jpg");
+		startup = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Other/blankOcean.jpg");
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
@@ -143,7 +143,8 @@ public class Viewer {
 		boats.setBounds(740, 160, 610, 145);
 		// boats.setBackground(Color.blue); //DEBUG need to remove for looks
 
-		ImageIcon carrier = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
+		ImageIcon carrier = new ImageIcon(
+				"./COSC-330-Battleship/Project 1/Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
 		buttonShipArray[0].addActionListener(new selectedShipListener(1));
 		buttonShipArray[0].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -151,7 +152,7 @@ public class Viewer {
 		buttonShipArray[0].setContentAreaFilled(false);
 		buttonShipArray[0].setBorderPainted(false);
 
-		ImageIcon battleship = new ImageIcon("./Images/Battleship/Battleship 4-1.png");
+		ImageIcon battleship = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Battleship/Battleship 4-1.png");
 		buttonShipArray[1] = new JButton(battleship); // first "button" is just a blank space
 		buttonShipArray[1].addActionListener(new selectedShipListener(2));
 		buttonShipArray[1].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -159,7 +160,7 @@ public class Viewer {
 		buttonShipArray[1].setContentAreaFilled(false);
 		buttonShipArray[1].setBorderPainted(false);
 
-		ImageIcon cruiser = new ImageIcon("./Images/Cruiser/Cru1.png");
+		ImageIcon cruiser = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Cruiser/Cru1.png");
 		buttonShipArray[2] = new JButton(cruiser); // first "button" is just a blank space
 		buttonShipArray[2].addActionListener(new selectedShipListener(3));
 		buttonShipArray[2].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -167,7 +168,7 @@ public class Viewer {
 		buttonShipArray[2].setContentAreaFilled(false);
 		buttonShipArray[2].setBorderPainted(false);
 
-		ImageIcon submarine = new ImageIcon("./Images/Submarine/Sub1.png");
+		ImageIcon submarine = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Submarine/Sub1.png");
 		buttonShipArray[3] = new JButton(submarine); // first "button" is just a blank space
 		buttonShipArray[3].addActionListener(new selectedShipListener(4));
 		buttonShipArray[3].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -175,7 +176,7 @@ public class Viewer {
 		buttonShipArray[3].setContentAreaFilled(false);
 		buttonShipArray[3].setBorderPainted(false);
 
-		ImageIcon destroyer = new ImageIcon("./Images/Destroyer/dest1.png");
+		ImageIcon destroyer = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Destroyer/dest1.png");
 		buttonShipArray[4] = new JButton(destroyer); // first "button" is just a blank space
 		buttonShipArray[4].addActionListener(new selectedShipListener(5));
 		buttonShipArray[4].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -189,21 +190,26 @@ public class Viewer {
 		boats.add(buttonShipArray[3]);
 		boats.add(buttonShipArray[4]);
 
-
 		// buttonShipArray[4].setEnabled(false); //disables and grays out ship button
 		// buttonShipArray[4].setVisible(false); //removes button entirely from view,
 		// reorganizes other buttons
-		
 
 		frame.add(boats);
 	}
 
 	private void createNameEntryArea() {
+		JTextField prompt = new JTextField("Player Name:");
+		prompt.setBounds(100, 50, 150, 50);
+		prompt.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		prompt.setForeground(Color.BLACK);
+		prompt.setOpaque(false);
+		prompt.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+
 		JTextField nameArea = new JTextField();
-		nameArea.setText("Enter Name:");
+		nameArea.setText("Enter your name:");
 		nameArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
 		nameArea.setForeground(Color.lightGray);
-		nameArea.setBounds(84, 50, 250, 50);
+		nameArea.setBounds(260, 50, 250, 50);
 		nameArea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String text = nameArea.getText(); // gets text from field
@@ -214,6 +220,10 @@ public class Viewer {
 					nameArea.setDisabledTextColor(Color.black);
 					nameArea.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 					nameArea.setOpaque(false);
+					prompt.setVisible(false);
+					nameArea.setBounds(100, 50, 250, 50);
+					nameArea.setText("Player:  " + text);
+
 				}
 			}
 		});
@@ -222,7 +232,7 @@ public class Viewer {
 		// entry
 		nameArea.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent e) { // clicked on text box
-				if (nameArea.getText().equals("Enter Name:")) {
+				if (nameArea.getText().equals("Enter your name:")) {
 					nameArea.setText("");
 					nameArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
 					nameArea.setForeground(Color.BLACK);
@@ -233,10 +243,11 @@ public class Viewer {
 				if (nameArea.getText().isBlank()) {
 					nameArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
 					nameArea.setForeground(Color.lightGray);
-					nameArea.setText("Enter Name:");
+					nameArea.setText("Enter your name:");
 				}
 			}
 		});
+		frame.add(prompt);
 		frame.add(nameArea);
 	}
 
@@ -256,7 +267,8 @@ public class Viewer {
 		horizontalButton.addActionListener(new horizontalListener());
 		horizontalButton.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(horizontalButton);
-		horizontalButton.setEnabled(false);
+		horizontalButton.setVisible(false);
+
 	}
 
 	private void createAutoPlaceShipsButton() {
@@ -265,23 +277,71 @@ public class Viewer {
 		autoPlaceButton.addActionListener(new automaticPlacementListener());
 		autoPlaceButton.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(autoPlaceButton);
-		autoPlaceButton.setEnabled(false); // keep disabled until needed
+		autoPlaceButton.setVisible(false); // keep disabled until needed
 	}
 
 	private void createServerButton() {
 		server = new JButton("Server");
-		server.setBounds(800, 50, 200, 50);
+		server.setBounds(1010, 110, 240, 50);
 		server.addActionListener(new serverListener());
 		server.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		frame.add(server);
 	}
 
 	private void createClientButton() {
+		JTextField textArea = new JTextField("Enter server name:");
+		textArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
+		textArea.setForeground(Color.lightGray);
+		textArea.setBounds(1010, 110, 240, 50);
+		textArea.setVisible(false);
+
+		textArea.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String text = textArea.getText(); // gets text from field
+				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
+				if (stateChanged) {
+					client.setVisible(false);
+					textArea.setVisible(false);
+					horizontalButton.setEnabled(true); // horizontal button ready for input
+					autoPlaceButton.setEnabled(true); // autoPlace button ready for input
+				}
+			}
+		});
+		textArea.addFocusListener(new FocusListener() {
+			public void focusGained(FocusEvent e) { // clicked on text box
+				if (textArea.getText().equals("Enter server name:")) {
+					textArea.setText("");
+					textArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
+					textArea.setForeground(Color.BLACK);
+				}
+			}
+
+			public void focusLost(FocusEvent e) { // clicked away from text box
+				if (textArea.getText().isBlank()) {
+					textArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
+					textArea.setForeground(Color.lightGray);
+					textArea.setText("Enter server name:");
+				}
+			}
+		});
+
 		client = new JButton("Client");
-		client.setBounds(1010, 50, 200, 50);
-		client.addActionListener(new clientListener());
+		client.setBounds(800, 110, 200, 50);
 		client.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
+
+		client.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				client.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
+				client.setText("You are: Client");
+				client.setEnabled(false);
+				server.setVisible(false);
+				horizontalButton.setEnabled(true); // horizontal button ready for input
+				autoPlaceButton.setEnabled(true); // autoPlace button ready for input
+			}
+		});
+		frame.add(textArea);
 		frame.add(client);
+
 	}
 
 	// private void create

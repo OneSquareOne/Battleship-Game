@@ -12,7 +12,7 @@ public class MyTextArea extends JTextArea {
     public MyTextArea() {
         super();
         try {
-            img = ImageIO.read(new File("./Images/Other/bg1-2.jpg"));
+            img = ImageIO.read(new File("./COSC-330-Battleship/Project 1/Images/Other/bg1-2.jpg"));
         } catch (IOException e) {
             System.out.println(e.toString());
         }
