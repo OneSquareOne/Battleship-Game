@@ -17,8 +17,9 @@ public class Viewer {
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
 	private JButton buttonShipArray[]; // used for updating ship boat area
-	private JButton server; // buttons are created so they are accessible to other action listeners
-	private JButton client;
+	private JButton serverButton; // buttons are created so they are accessible to other action listeners
+	private JButton clientButton;
+	private JTextField textArea;
 	private JButton horizontalButton;
 	private JButton autoPlaceButton;
 	protected static JTextArea notificationArea;
@@ -198,32 +199,38 @@ public class Viewer {
 	}
 
 	private void createNameEntryArea() {
-		JTextField prompt = new JTextField("Player Name:");
+
+		JTextField prompt = new JTextField("Player Name:"); // player name label
 		prompt.setBounds(100, 50, 150, 50);
 		prompt.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
-		prompt.setForeground(Color.BLACK);
-		prompt.setOpaque(false);
-		prompt.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		prompt.setForeground(Color.BLACK); // font color
+		prompt.setOpaque(false); // background transparent
+		prompt.setBorder(javax.swing.BorderFactory.createEmptyBorder()); // make border invisible
 
+		// text box to enter name
 		JTextField nameArea = new JTextField();
 		nameArea.setText("Enter your name:");
 		nameArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
 		nameArea.setForeground(Color.lightGray);
 		nameArea.setBounds(260, 50, 250, 50);
+
+		// this action listener takes effect when enter is hit on keyboard with text box
+		// selected
 		nameArea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String text = nameArea.getText(); // gets text from field
 				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
 				if (stateChanged) {
-					nameArea.setEnabled(false);
+					nameArea.setEnabled(false); // text box not longer enabled
 					nameArea.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
-					nameArea.setDisabledTextColor(Color.black);
-					nameArea.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-					nameArea.setOpaque(false);
-					prompt.setVisible(false);
-					nameArea.setBounds(100, 50, 250, 50);
+					nameArea.setDisabledTextColor(Color.black); // font color
+					nameArea.setBorder(javax.swing.BorderFactory.createEmptyBorder()); // no border
+					nameArea.setOpaque(false); // background transparent
+					prompt.setVisible(false); // gets rid of prompt
+					nameArea.setBounds(100, 50, 250, 50);// resize to prompt area
 					nameArea.setText("Player:  " + text);
-
+					serverButton.setVisible(true);
+					clientButton.setVisible(true);
 				}
 			}
 		});
@@ -281,18 +288,36 @@ public class Viewer {
 	}
 
 	private void createServerButton() {
-		server = new JButton("Server");
-		server.setBounds(1010, 110, 240, 50);
-		server.addActionListener(new serverListener());
-		server.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
-		frame.add(server);
+		serverButton = new JButton("Server");
+		serverButton.setBounds(1050, 110, 290, 50);
+		serverButton.addActionListener(new serverListener());
+		serverButton.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		serverButton.setVisible(false); // keep invisible until name is entered
+		frame.add(serverButton);
 	}
 
 	private void createClientButton() {
-		JTextField textArea = new JTextField("Enter server name:");
+
+		clientButton = new JButton("Client"); // creates client button
+		clientButton.setBounds(750, 110, 290, 50);
+		clientButton.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		clientButton.setVisible(false); // keep invisible until name is entered
+
+		clientButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clientButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
+				clientButton.setText("Enter server machine name:");
+				clientButton.setEnabled(false);
+				serverButton.setVisible(false); // replace server button with text entry box
+				textArea.setVisible(true);
+			}
+		});
+
+		// creates text area after client button selection
+		textArea = new JTextField("Enter server name:");
 		textArea.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
 		textArea.setForeground(Color.lightGray);
-		textArea.setBounds(1010, 110, 240, 50);
+		textArea.setBounds(1050, 110, 290, 50);
 		textArea.setVisible(false);
 
 		textArea.addActionListener(new ActionListener() {
@@ -300,7 +325,7 @@ public class Viewer {
 				String text = textArea.getText(); // gets text from field
 				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
 				if (stateChanged) {
-					client.setVisible(false);
+					clientButton.setVisible(false);
 					textArea.setVisible(false);
 					horizontalButton.setEnabled(true); // horizontal button ready for input
 					autoPlaceButton.setEnabled(true); // autoPlace button ready for input
@@ -325,22 +350,8 @@ public class Viewer {
 			}
 		});
 
-		client = new JButton("Client");
-		client.setBounds(800, 110, 200, 50);
-		client.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
-
-		client.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				client.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
-				client.setText("You are: Client");
-				client.setEnabled(false);
-				server.setVisible(false);
-				horizontalButton.setEnabled(true); // horizontal button ready for input
-				autoPlaceButton.setEnabled(true); // autoPlace button ready for input
-			}
-		});
 		frame.add(textArea);
-		frame.add(client);
+		frame.add(clientButton);
 
 	}
 
@@ -455,9 +466,9 @@ public class Viewer {
 				JButton thisButton = (JButton) e.getSource();
 				thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
 				thisButton.setText("You are: Server");
-				client.setText("");
+				clientButton.setText("");
 				thisButton.setEnabled(false);
-				client.setEnabled(false);
+				clientButton.setEnabled(false);
 				gameController.selectServerRole();
 				horizontalButton.setEnabled(true); // horizontal button ready for input
 				autoPlaceButton.setEnabled(true); // autoPlace button ready for input
@@ -470,10 +481,10 @@ public class Viewer {
 			JButton thisButton = (JButton) e.getSource();
 			thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
 			thisButton.setText("You are: Client");
-			server.setText("");
+			serverButton.setText("");
 			thisButton.setEnabled(false);
-			server.setEnabled(false);
-			server.setBorderPainted(false);
+			serverButton.setEnabled(false);
+			serverButton.setBorderPainted(false);
 			horizontalButton.setEnabled(true); // horizontal button ready for input
 			autoPlaceButton.setEnabled(true); // autoPlace button ready for input
 		}
