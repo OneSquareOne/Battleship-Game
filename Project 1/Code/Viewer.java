@@ -23,6 +23,7 @@ public class Viewer {
 	private JButton horizontalButton;
 	private JButton autoPlaceButton;
 	protected static JTextArea notificationArea;
+	private String playerName;
 	private boolean horizontal = true;
 	private ImageIcon startup;
 	private int shipID = 0; // saves ship selected for ship placement
@@ -32,7 +33,7 @@ public class Viewer {
 		gameController = controller; // for registering viewer as an observer of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
-		startup = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Other/blankOcean.jpg");
+		startup = new ImageIcon("./Images/Other/blankOcean.jpg");
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
@@ -145,7 +146,7 @@ public class Viewer {
 		// boats.setBackground(Color.blue); //DEBUG need to remove for looks
 
 		ImageIcon carrier = new ImageIcon(
-				"./COSC-330-Battleship/Project 1/Images/AircraftCarrier/AircraftCarrier1-2.png");
+				"./Images/AircraftCarrier/AircraftCarrier1-2.png");
 		buttonShipArray[0] = new JButton(carrier); // first "button" is just a blank space
 		buttonShipArray[0].addActionListener(new selectedShipListener(1));
 		buttonShipArray[0].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -153,7 +154,7 @@ public class Viewer {
 		buttonShipArray[0].setContentAreaFilled(false);
 		buttonShipArray[0].setBorderPainted(false);
 
-		ImageIcon battleship = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Battleship/Battleship 4-1.png");
+		ImageIcon battleship = new ImageIcon("./Images/Battleship/Battleship 4-1.png");
 		buttonShipArray[1] = new JButton(battleship); // first "button" is just a blank space
 		buttonShipArray[1].addActionListener(new selectedShipListener(2));
 		buttonShipArray[1].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -161,7 +162,7 @@ public class Viewer {
 		buttonShipArray[1].setContentAreaFilled(false);
 		buttonShipArray[1].setBorderPainted(false);
 
-		ImageIcon cruiser = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Cruiser/Cru1.png");
+		ImageIcon cruiser = new ImageIcon("./Images/Cruiser/Cru1.png");
 		buttonShipArray[2] = new JButton(cruiser); // first "button" is just a blank space
 		buttonShipArray[2].addActionListener(new selectedShipListener(3));
 		buttonShipArray[2].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -169,7 +170,7 @@ public class Viewer {
 		buttonShipArray[2].setContentAreaFilled(false);
 		buttonShipArray[2].setBorderPainted(false);
 
-		ImageIcon submarine = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Submarine/Sub1.png");
+		ImageIcon submarine = new ImageIcon("./Images/Submarine/Sub1.png");
 		buttonShipArray[3] = new JButton(submarine); // first "button" is just a blank space
 		buttonShipArray[3].addActionListener(new selectedShipListener(4));
 		buttonShipArray[3].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -177,7 +178,7 @@ public class Viewer {
 		buttonShipArray[3].setContentAreaFilled(false);
 		buttonShipArray[3].setBorderPainted(false);
 
-		ImageIcon destroyer = new ImageIcon("./COSC-330-Battleship/Project 1/Images/Destroyer/dest1.png");
+		ImageIcon destroyer = new ImageIcon("./Images/Destroyer/dest1.png");
 		buttonShipArray[4] = new JButton(destroyer); // first "button" is just a blank space
 		buttonShipArray[4].addActionListener(new selectedShipListener(5));
 		buttonShipArray[4].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -218,8 +219,8 @@ public class Viewer {
 		// selected
 		nameArea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String text = nameArea.getText(); // gets text from field
-				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
+				playerName = nameArea.getText(); // gets text from field
+				boolean stateChanged = gameController.setPlayerName(playerName); // checks if successful
 				if (stateChanged) {
 					nameArea.setEnabled(false); // text box not longer enabled
 					nameArea.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -228,7 +229,7 @@ public class Viewer {
 					nameArea.setOpaque(false); // background transparent
 					prompt.setVisible(false); // gets rid of prompt
 					nameArea.setBounds(100, 50, 250, 50);// resize to prompt area
-					nameArea.setText("Player:  " + text);
+					nameArea.setText("Player:  " + playerName);
 					serverButton.setVisible(true);
 					clientButton.setVisible(true);
 				}
@@ -290,7 +291,21 @@ public class Viewer {
 	private void createServerButton() {
 		serverButton = new JButton("Server");
 		serverButton.setBounds(1050, 110, 290, 50);
-		serverButton.addActionListener(new serverListener());
+		serverButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (gameController.getCurrentState() == State.SELECTING_HOST) {
+					serverButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
+					serverButton.setText("You are: Server");
+					clientButton.setText("");
+					serverButton.setEnabled(false);
+					clientButton.setEnabled(false);
+					gameController.selectServerRole();
+					horizontalButton.setEnabled(true); // horizontal button ready for input
+					autoPlaceButton.setEnabled(true); // autoPlace button ready for input
+				}
+			}
+		});
+
 		serverButton.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
 		serverButton.setVisible(false); // keep invisible until name is entered
 		frame.add(serverButton);
@@ -305,8 +320,9 @@ public class Viewer {
 
 		clientButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				clientButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
-				clientButton.setText("Enter server machine name:");
+				addNotification("Client role selected.");
+				addNotification(playerName + ", enter server machine's name.");
+				clientButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 30));
 				clientButton.setEnabled(false);
 				serverButton.setVisible(false); // replace server button with text entry box
 				textArea.setVisible(true);
@@ -323,12 +339,18 @@ public class Viewer {
 		textArea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String text = textArea.getText(); // gets text from field
-				boolean stateChanged = gameController.setPlayerName(text); // checks if successful
+				if (text.isEmpty()) {
+					addNotification("Server name empty. Local connection initiated.");
+				} else {
+					addNotification("Connecting to " + text + ".");
+				}
+
+				boolean stateChanged = gameController.selectClientRole(text); // checks if successful
 				if (stateChanged) {
 					clientButton.setVisible(false);
 					textArea.setVisible(false);
-					horizontalButton.setEnabled(true); // horizontal button ready for input
-					autoPlaceButton.setEnabled(true); // autoPlace button ready for input
+					horizontalButton.setVisible(true); // horizontal button ready for input
+					autoPlaceButton.setVisible(true); // autoPlace button ready for input
 				}
 			}
 		});
@@ -457,36 +479,6 @@ public class Viewer {
 			autoPlaceButton.setEnabled(false);
 			horizontalButton.setEnabled(false);
 			horizontalButton.setBorderPainted(false);
-		}
-	}
-
-	public class serverListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (gameController.getCurrentState() == State.SELECTING_HOST) {
-				JButton thisButton = (JButton) e.getSource();
-				thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
-				thisButton.setText("You are: Server");
-				clientButton.setText("");
-				thisButton.setEnabled(false);
-				clientButton.setEnabled(false);
-				gameController.selectServerRole();
-				horizontalButton.setEnabled(true); // horizontal button ready for input
-				autoPlaceButton.setEnabled(true); // autoPlace button ready for input
-			}
-		}
-	}
-
-	public class clientListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			JButton thisButton = (JButton) e.getSource();
-			thisButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 18));
-			thisButton.setText("You are: Client");
-			serverButton.setText("");
-			thisButton.setEnabled(false);
-			serverButton.setEnabled(false);
-			serverButton.setBorderPainted(false);
-			horizontalButton.setEnabled(true); // horizontal button ready for input
-			autoPlaceButton.setEnabled(true); // autoPlace button ready for input
 		}
 	}
 

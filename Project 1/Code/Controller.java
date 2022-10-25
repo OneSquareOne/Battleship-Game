@@ -388,12 +388,15 @@ public class Controller {
 	}
 
 	// selects the client role for this machine
-	public void selectClientRole() {
+	public boolean selectClientRole(String name) {
+		boolean stateChanged = false;
 		if (thisPlayerState.currentState == State.SELECTING_HOST) {
-			serverName = ""; // DEBUG just for local play
+			serverName = name;
 			thisPlayerRole = new BattleShipClient(serverName);
 			thisPlayerState.currentState = State.SHIP_PLACEMENT;
+			stateChanged = true;
 		}
+		return stateChanged;
 	}
 
 	// returns the current player's state
