@@ -43,6 +43,8 @@ public class TargetGrid extends GameBoard {
 			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/blankOcean";
 		else if (value == 0) // build extension for open ocean with miss
 			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/miss";
+		else if(value == 1)
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/hiddenHit";
 
 		return fileNameString + IMAGE_EXTENSION;
 	}

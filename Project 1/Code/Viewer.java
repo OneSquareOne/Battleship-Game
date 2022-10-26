@@ -76,6 +76,7 @@ public class Viewer {
 				newButton.setOpaque(false);
 				newButton.setContentAreaFilled(false);
 				newButton.setBorderPainted(false);
+				newButton.setFocusPainted(false);
 				buttonGrid.add(newButton);
 			}
 
@@ -89,6 +90,7 @@ public class Viewer {
 					newButton.setOpaque(false);
 					newButton.setContentAreaFilled(false);
 					newButton.setBorderPainted(false);
+					newButton.setFocusPainted(false);
 					buttonGrid.add(newButton);
 				} else { // create the buttons for selecting shot
 					newButton = new JButton(startup); // current image on button
@@ -262,12 +264,10 @@ public class Viewer {
 
 		autoPlaceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(gameController.autoPlaceShips()){
-					shipPlacementComplete(); //turns off buttons
-				}
+				shipPlacementComplete(); // turns off buttons
 			}
 		});
-		
+
 		frame.add(autoPlaceButton);
 		autoPlaceButton.setVisible(false); // keep disabled until needed
 	}
@@ -371,7 +371,7 @@ public class Viewer {
 		horizontalButton.setVisible(false);
 
 		for (int i = 0; i < 5; i++) { // turn on ship icons
-			buttonShipArray[i].setFocusPainted(false); //stops hightlighting box around ship
+			buttonShipArray[i].setFocusPainted(false); // stops hightlighting box around ship
 		}
 	}
 

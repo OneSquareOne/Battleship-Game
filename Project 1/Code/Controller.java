@@ -24,6 +24,7 @@ public class Controller {
 	// constructor
 	public Controller() {
 		thisPlayerState = new State();
+		rowColArray = new int[2];
 	}
 
 	public void playGame() throws IOException, InterruptedException {
@@ -95,7 +96,7 @@ public class Controller {
 
 				bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
 				thisPlayerRole.send(rowColArray); // send shot to real opponent
-				//TODO: update viewer
+				updateViewerTargetGridLocation(rowColArray[0], rowColArray[1]);
 				currentWinner = checkForWinner(thisPlayer, opponentShadow); // changes state if winner
 			}
 
@@ -105,7 +106,7 @@ public class Controller {
 				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
 				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
 				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
-				//TODO: update viewer
+				updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
 				thisPlayerState.currentState = State.SELECTING_VOLLEY;
 				currentWinner = checkForWinner(thisPlayer, opponentShadow);// changes state if winner
 			}
@@ -179,11 +180,12 @@ public class Controller {
 
 			if (shipPlaced) { // ship was placed; update state if that was the last one
 				gameViewer.addNotification(tempShip.getName() + " placed successfully.");
+				updateViewerOceanGridWithShip(tempShip);
 
 				if (thisPlayer.getShipsToBePlaced() == 0) { // all ships placed
 					gameViewer.addNotification("All ships placed successfully.");
-					thisPlayerState.currentState = State.SELECTING_VOLLEY;
 					gameViewer.shipPlacementComplete();
+					thisPlayerState.currentState = State.SELECTING_VOLLEY;
 				}
 			}
 		}
@@ -218,6 +220,21 @@ public class Controller {
 			for (int col = 0; col < BOARD_COLS; col++) {
 				String imageFilePath = thisPlayer.getOceanGrid().getImagePath(row, col);
 				gameViewer.updateOceanGrid(row, col, imageFilePath);
+			}
+		}
+	}
+
+	// updates only the viewer's ocean grid coordinates where ship is placed
+	public void updateViewerOceanGridWithShip(Ship ship) {
+		for (int i = 0; i < ship.getSize(); i++) {
+			if (ship.isHorizontal()) {
+				int row = ship.getBowPosition()[0]; // horizontal, row doesn't change
+				int col = ship.getBowPosition()[1] + i; // go through each ship spot
+				updateViewerOceanGridLocation(row, col); // update that spot
+			} else {
+				int row = ship.getBowPosition()[0] + i; // go through each ship spot
+				int col = ship.getBowPosition()[1]; // vertical, col doesn't change
+				updateViewerOceanGridLocation(row, col); // update that spot
 			}
 		}
 	}
@@ -279,13 +296,12 @@ public class Controller {
 			thisPlayer.getOceanGrid().setCurrentShot(row, col);
 			opponentShadow.getOceanGrid().setCurrentShot(row, col);
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
-			System.out.println(thisPlayer.getName() + " shoots at (" + row + ", " + col + ").");
+			gameViewer.addNotification(thisPlayer.getName() + " shoots at (" + row + ", " + col + ").");
 		}
 	}
 
 	// this update is for placing ships automatically
-	public boolean autoPlaceShips() {
-		boolean stateChanged = false;
+	public void autoPlaceShips() {
 		if (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 			thisPlayer.getOceanGrid().autoPlaceShips();
 			if (thisPlayerRole instanceof BattleShipServer) {
@@ -293,10 +309,8 @@ public class Controller {
 			} else {
 				thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 			}
-			stateChanged = true;
 			updateViewerEntireOceanGrid();
 		}
-		return stateChanged;
 	}
 
 	// allows the controller to access the model
