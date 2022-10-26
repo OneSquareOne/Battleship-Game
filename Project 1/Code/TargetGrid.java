@@ -35,4 +35,17 @@ public class TargetGrid extends GameBoard {
 	public void isHit(int row, int col) {
 		this.updateGrid(row, col, 1);
 	}
+
+	public String getImagePath(int row, int col) {
+		String fileNameString = IMAGE_DIRECTORY; // add directory
+		int value = getGridLocationValue(row, col); // get ocean value
+		if (value == -1) // build extension for open ocean image
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/blankOcean";
+		else if (value == 0) // build extension for open ocean with miss
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/miss";
+		else if(value == 1)
+			fileNameString = fileNameString + OTHER_IMG_SUBDIRECTORY + "/hiddenHit";
+
+		return fileNameString + IMAGE_EXTENSION;
+	}
 }

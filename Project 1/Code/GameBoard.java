@@ -1,7 +1,7 @@
 /* GameBoard is part of the Battleship Project.  The GameBoard class is the abstract class for implementation of the TargetGrid
  * and OceanGrid classes. The processShot() method is abstract and must be implemented in these subclasses.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/15/2022
+ * Updated: 10/20/2022
  */
 
 public abstract class GameBoard {
@@ -9,7 +9,15 @@ public abstract class GameBoard {
 	private int[] currentShot; // 2 element array, shot location coordinates [row,col]
 	protected int totalRows;
 	protected int totalCols;
-
+	protected final String IMAGE_DIRECTORY = "./Images"; // directory of all images
+	protected final String IMAGE_EXTENSION = ".jpg"; // extension used for ship images
+	protected final String AIRCRAFT_CARRIER_IMG_SUBDIRECTORY = "/AircraftCarrier";
+	protected final String BATTLESHIP_IMG_SUBDIRECTORY = "/Battleship";
+	protected final String CRUISER_IMG_SUBDIRECTORY = "/Cruiser";
+	protected final String SUBMARINE_IMG_SUBDIRECTORY = "/Submarine";
+	protected final String DESTROYER_IMG_SUBDIRECTORY = "/Destroyer";
+	protected final String OTHER_IMG_SUBDIRECTORY = "/Other";
+	
 	// constructor; initializes array to -1
 	public GameBoard(int rows, int cols) {
 		totalRows = rows;
@@ -70,4 +78,7 @@ public abstract class GameBoard {
 
 	// process shot received or shot made; returns boolean to indicate true if hit
 	public abstract boolean processShot();
+
+	//returns file path for image at game board location
+	public abstract String getImagePath(int row, int col);
 }

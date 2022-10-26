@@ -2,22 +2,23 @@
  * represent a ship in the Battle Ship game.  It is constructed such that if extension of the game rules is
  * desired (additional ships, altered number of shots like the Salvo variant, etc...), the code can be easily modified.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 9/20/22
+ * Updated: 10/20/22
  */
 
 public class Ship {
 
 	private String name;
-	private int shipID;
+	private int shipID; // identifies ship on a grid
 	private int size;
 	private int hits;
 	private int[] bowPosition; // the position of the front of the ship
 	private int[][] hitPositions; // positions ship has been hit
 	private boolean isHorizontal;
 	private boolean isSunk;
+	private String imagePathName; // for building the rest of image file path
 
 	// constructor
-	public Ship(String shipName, int iD, int shipSize, boolean horizontal) {
+	public Ship(String shipName, int iD, int shipSize, boolean horizontal, String fileName) {
 		name = shipName;
 		shipID = iD;
 		size = shipSize;
@@ -30,6 +31,7 @@ public class Ship {
 		bowPosition = new int[] { -1, -1 };
 		isHorizontal = horizontal;
 		isSunk = false;
+		imagePathName = fileName;
 	}
 
 	// return ship name
@@ -45,6 +47,30 @@ public class Ship {
 	// return ship size
 	public int getSize() {
 		return size;
+	}
+
+	// returns the appropriate image file path for the ship at given row and column;
+	// Precondition:
+	// ship must exist at location
+	public String getImagePathAtCoordinates(int row, int col) {
+
+		String imagePath = imagePathName;
+		if (checkForHit(row, col)) // check it its an image with a hit (explosion)
+			imagePath = imagePath + "/2-";
+		else
+			imagePath = imagePath + "/1-";
+
+		int slice; // which slice of the image to return (1 to shipSize);
+
+		if (isHorizontal) {
+			slice = col - bowPosition[1] + 1;
+			imagePath = imagePath + slice + "h";
+		} else {
+			slice = row - bowPosition[0] + 1;
+			imagePath = imagePath + slice + "v";
+		}
+
+		return imagePath; // still needs extension (.jpg) after this return
 	}
 
 	// update if ship is facing horizontal
@@ -74,6 +100,12 @@ public class Ship {
 				return;
 			}
 		}
+	}
+
+	// returns a 2D int array of coordinates where the ship was hit, in the order
+	// they were hit
+	public int[][] getHitPositions() {
+		return hitPositions;
 	}
 
 	// returns if the ship is sunk
