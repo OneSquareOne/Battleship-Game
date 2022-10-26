@@ -264,7 +264,8 @@ public class Viewer {
 
 		autoPlaceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				shipPlacementComplete(); // turns off buttons
+				if (gameController.autoPlaceShips()) //if controller successfully places ships
+					shipPlacementComplete(); // turns off buttons
 			}
 		});
 

@@ -301,7 +301,8 @@ public class Controller {
 	}
 
 	// this update is for placing ships automatically
-	public void autoPlaceShips() {
+	public boolean autoPlaceShips() {
+		boolean stateChanged = false;
 		if (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 			thisPlayer.getOceanGrid().autoPlaceShips();
 			if (thisPlayerRole instanceof BattleShipServer) {
@@ -310,7 +311,9 @@ public class Controller {
 				thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 			}
 			updateViewerEntireOceanGrid();
+			stateChanged = true;
 		}
+		return stateChanged;
 	}
 
 	// allows the controller to access the model
