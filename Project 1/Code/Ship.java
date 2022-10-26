@@ -54,23 +54,23 @@ public class Ship {
 	// ship must exist at location
 	public String getImagePathAtCoordinates(int row, int col) {
 
+		String imagePath = imagePathName;
 		if (checkForHit(row, col)) // check it its an image with a hit (explosion)
-			imagePathName = imagePathName + "/2-";
+			imagePath = imagePath + "/2-";
 		else
-			imagePathName = imagePathName + "/1-";
+			imagePath = imagePath + "/1-";
 
-		for (int i = 0; i < getSize(); i++) { // add correct ship slice
-			if (isHorizontal) {
-				if ((bowPosition[1] + i) == col) { // since ship is horizontal, only check columns
-					imagePathName = imagePathName + (i + 1) + "h";
-				}
-			} else {
-				if ((bowPosition[0] + i) == row) { // since ship is vertical, only check rows
-					imagePathName = imagePathName + (i + 1) + "v";
-				}
-			}
+		int slice; // which slice of the image to return (1 to shipSize);
+
+		if (isHorizontal) {
+			slice = col - bowPosition[1] + 1;
+			imagePath = imagePath + slice + "h";
+		} else {
+			slice = row - bowPosition[0] + 1;
+			imagePath = imagePath + slice + "v";
 		}
-		return imagePathName; //still needs extension (.jpg) after this return
+
+		return imagePath; // still needs extension (.jpg) after this return
 	}
 
 	// update if ship is facing horizontal

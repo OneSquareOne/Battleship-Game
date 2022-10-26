@@ -30,51 +30,59 @@ public class Controller {
 
 		gameViewer.addNotification("Player, enter your name. ");
 
+		// wait for setup to complete
 		while (thisPlayerState.currentState == State.SETUP) {
-		} // wait for setup to complete
+		}
 
 		gameViewer.addNotification(name + ", select server or client.");
-		thisPlayerState.currentState = State.SELECTING_HOST; // TODO: remove when name added
 
 		thisPlayer = new Player(name); // TODO: move to model
 		opponentShadow = new Player("Opponent"); // TODO: move to model
 
-		while (thisPlayerState.currentState == State.SELECTING_HOST) {
-		} // wait for host selection
+		// wait for host selection
+		while (thisPlayerState.currentState == State.SELECTING_SERVER) {
+		}
 
-		if (thisPlayerState.currentState == State.CONNECT_TO_HOST) // prompt for client
+		if (thisPlayerState.currentState == State.CONNECT_TO_SERVER) { // prompt for client
 			gameViewer.addNotification(name + ", enter the server's device name.");
+		}
 
-		while (thisPlayerState.currentState == State.CONNECT_TO_HOST) {
-		} // wait for entering of server name from client, skipped if server
+		// wait for entering of server name from client, skipped if server
+		while (thisPlayerState.currentState == State.CONNECT_TO_SERVER) {
+		}
 
 		// sets up the client side or server side of the connection, based on the
 		// application's role; this is a BLOCKING method call (client and server
 		// synchronized here)
 		thisPlayerRole.startConnection();
 
-		// Players swap names, sever sends first
+		gameViewer.activateShipPlacement(); // activates ship buttons on viewer
+
+		thisPlayerState.currentState = State.SHIP_PLACEMENT; // connection successful
+
+		// Players swap names, sever sends first; BLOCKING method call
 		swapNames();
+		gameViewer.addNotification("Connection successful.  Opponent: " + opponentShadow.getName());
+		// TODO: move opponnent name above notification area here
 
 		// ships placed in GUI
 		while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 		}
 
-		System.out.println("Local Ships placed\n"); // TODO: move to GUI
+		gameViewer.addNotification("Local ships placed, waiting for " + opponentShadow.getName() + ".");
 
-		// Players swap ocean grids, sever sends first
+		// Players swap ocean grids, sever sends first; BLOCKING method call
 		swapGrids();
 
-		System.out.println("Ships placement completed\n"); // TODO: move to gui
+		gameViewer.addNotification("Ships placement completed for both players.");
 
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
-			System.out.println(thisPlayer.getName() + "'s the server.  The server fires first! \n");
+			gameViewer.addNotification(thisPlayer.getName() + "'s the server.  The server fires first!");
 			thisPlayerState.currentState = State.SELECTING_VOLLEY;
 		} else if (thisPlayerRole instanceof BattleShipClient) {
-			System.out.println(thisPlayer.getName() + "'s the client.  The server fires first!\n");
+			gameViewer.addNotification(thisPlayer.getName() + "'s the client.  The server fires first!");
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
-			// TODO: move to GUI
 		}
 
 		while (currentWinner == -1) { // main play loop
@@ -87,12 +95,7 @@ public class Controller {
 
 				bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
 				thisPlayerRole.send(rowColArray); // send shot to real opponent
-				gameViewer.updateTargetGrid(BOARD_ROWS, BOARD_COLS, name);
-
-				String imagePath = thisPlayer.getTargetGrid().getImagePath(
-						rowColArray[0], rowColArray[1]); // get correct image based on new board info
-
-				gameViewer.updateTargetGrid(rowColArray[0], rowColArray[1], imagePath);
+				//TODO: update viewer
 				currentWinner = checkForWinner(thisPlayer, opponentShadow); // changes state if winner
 			}
 
@@ -102,13 +105,7 @@ public class Controller {
 				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
 				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
 				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
-				String filePath = getOceanGridImageString(rowColArray[0], rowColArray[1]);
-				gameViewer.updateOceanGrid(rowColArray[0], rowColArray[1], filePath);
-
-				String imagePath = thisPlayer.getOceanGrid().getImagePath(
-						rowColArray[0], rowColArray[1]); // get correct image based on new board info
-
-				gameViewer.updateOceanGrid(rowColArray[0], rowColArray[1], imagePath);
+				//TODO: update viewer
 				thisPlayerState.currentState = State.SELECTING_VOLLEY;
 				currentWinner = checkForWinner(thisPlayer, opponentShadow);// changes state if winner
 			}
@@ -181,107 +178,48 @@ public class Controller {
 			}
 
 			if (shipPlaced) { // ship was placed; update state if that was the last one
-				System.out.println(tempShip.getName() + " placed successfully\n"); // TODO: move to GUI
+				gameViewer.addNotification(tempShip.getName() + " placed successfully.");
 
 				if (thisPlayer.getShipsToBePlaced() == 0) { // all ships placed
-					System.out.println("All ships placed successfully\n"); // TODO: move to GUI
+					gameViewer.addNotification("All ships placed successfully.");
 					thisPlayerState.currentState = State.SELECTING_VOLLEY;
+					gameViewer.shipPlacementComplete();
 				}
 			}
 		}
 		return shipPlaced;
 	}
 
-	// prints empty board //TODO: will need to be removed or deactivated once GUI is
-	// in place
-	public static void displayOceanGrid(Player currentPlayer) {
-		int rows = 10; // can be modified to make the game board larger
-		int cols = 10;
-
-		System.out.println("\t" + currentPlayer.getName() + "'s Ocean Grid");
-		System.out.print("  C");
-		for (int i = 0; i < rows; i++) // prints column labels
-			System.out.print("  " + i);
-
-		System.out.println();
-
-		for (int i = 0; i < rows + 2; i++) { // start printing grid
-			if (i == 0)
-				System.out.print("R ");
-			if (i == 11)
-				System.out.print("  "); // for indenting bottom line
-			if (i % 11 == 0)
-				System.out.println("---------------------------------");
-			else {
-
-				System.out.print((i - 1) + " |"); // prints row labels and leading border
-
-				for (int j = 0; j < cols; j++) { // print each grid value after formatting
-
-					int gridValue = currentPlayer.getOceanGrid().getGridLocationValue(i - 1, j);
-					String formattedPrint = String.valueOf(gridValue);
-
-					if (gridValue == -1) { // no ship in grid
-						formattedPrint = "~";
-					} else if (gridValue == 0) { // miss in grid
-						formattedPrint = "@";
-					} else if (currentPlayer.getOceanGrid().getShipWithID(gridValue).checkForHit(i - 1, j)) {
-						formattedPrint = "X"; // check for hit on ship
-					}
-					System.out.printf("%3s", formattedPrint); // print each formatted grid value with spacing
-				}
-				System.out.println(" |"); // trailing border
-			}
-		}
-		System.out.println();
+	// updates the viewer's target grid at given coordinates
+	public void updateViewerTargetGridLocation(int row, int col) {
+		String imageFilePath = thisPlayer.getTargetGrid().getImagePath(row, col);
+		gameViewer.updateTargetGrid(row, col, imageFilePath);
 	}
 
-	// display target grid, properly formatted; target
-	public static void displayTargetGrid(Player currentPlayer) {
-		int rows = 10; // can be modified to make the game board larger
-		int cols = 10;
-
-		System.out.println("\t" + currentPlayer.getName() + "'s Target Grid");
-		System.out.print("  C");
-		for (int i = 0; i < rows; i++) // prints column labels
-			System.out.print("  " + i);
-
-		System.out.println();
-
-		for (int i = 0; i < rows + 2; i++) { // start printing grid
-			if (i == 0)
-				System.out.print("R ");
-			if (i == 11)
-				System.out.print("  "); // for indenting bottom line
-			if (i % 11 == 0)
-				System.out.println("---------------------------------");
-			else {
-
-				System.out.print((i - 1) + " |"); // prints row labels
-
-				for (int j = 0; j < cols; j++) { // print each grid value after formatting
-
-					int gridValue = currentPlayer.getTargetGrid().getGridLocationValue(i - 1, j);
-					String formattedPrint = String.valueOf(gridValue);
-					if (gridValue == -1) {
-						formattedPrint = "~";
-					} else if (gridValue == 0) {
-						formattedPrint = "@";
-					} else {
-						formattedPrint = "X";
-					}
-					System.out.printf("%3s", formattedPrint);
-				}
-				System.out.println(" |");
+	// updates the viewer's entire target grid
+	public void updateViewerEntireTargetGrid() {
+		for (int row = 0; row < BOARD_ROWS; row++) {
+			for (int col = 0; col < BOARD_COLS; col++) {
+				String imageFilePath = thisPlayer.getTargetGrid().getImagePath(row, col);
+				gameViewer.updateTargetGrid(row, col, imageFilePath);
 			}
 		}
-		System.out.println();
 	}
 
-	// just displays both grids; formatted for text output
-	public static void displayBothGrids(Player currentPlayer) {
-		displayTargetGrid(currentPlayer);
-		displayOceanGrid(currentPlayer);
+	// updates the viewer's ocean grid at given coordinates
+	public void updateViewerOceanGridLocation(int row, int col) {
+		String imageFilePath = thisPlayer.getOceanGrid().getImagePath(row, col);
+		gameViewer.updateOceanGrid(row, col, imageFilePath);
+	}
+
+	// updates the viewer's entire ocean grid
+	public void updateViewerEntireOceanGrid() {
+		for (int row = 0; row < BOARD_ROWS; row++) {
+			for (int col = 0; col < BOARD_COLS; col++) {
+				String imageFilePath = thisPlayer.getOceanGrid().getImagePath(row, col);
+				gameViewer.updateOceanGrid(row, col, imageFilePath);
+			}
+		}
 	}
 
 	// processes a shot; precondition: current shot is set for shooting player
@@ -322,17 +260,6 @@ public class Controller {
 		return -1;
 	}
 
-	// gets the filename for the appropriate image at given grid coordinates
-	// (ocean,miss,ship,hit)
-	private String getOceanGridImageString(int row, int col) {
-		return thisPlayer.getOceanGrid().getImagePath(row, col);
-	}
-
-	// gets the filename for the appropriate image for target grid at coordinates
-	private String getTargetGridImageString(int row, int col) {
-		return thisPlayer.getTargetGrid().getImagePath(row, col);
-	}
-
 	// incoming shot information from the opponent's target grid
 	public void shotFromOpponent(int row, int col) {
 		if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
@@ -357,7 +284,8 @@ public class Controller {
 	}
 
 	// this update is for placing ships automatically
-	public void autoPlaceShips() {
+	public boolean autoPlaceShips() {
+		boolean stateChanged = false;
 		if (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 			thisPlayer.getOceanGrid().autoPlaceShips();
 			if (thisPlayerRole instanceof BattleShipServer) {
@@ -365,7 +293,10 @@ public class Controller {
 			} else {
 				thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 			}
+			stateChanged = true;
+			updateViewerEntireOceanGrid();
 		}
+		return stateChanged;
 	}
 
 	// allows the controller to access the model
@@ -379,18 +310,23 @@ public class Controller {
 	}
 
 	// chooses the server role for this machine
-	public void selectServerRole() {
-		if (thisPlayerState.currentState == State.SELECTING_HOST) {
+	public boolean selectServerRole() {
+		boolean stateChanged = false;
+		if (thisPlayerState.currentState == State.SELECTING_SERVER) {
+			gameViewer.addNotification("Server role selected.");
 			thisPlayerRole = new BattleShipServer();
-			System.out.println("Status changed to ship_placement");
-			thisPlayerState.currentState = State.SHIP_PLACEMENT;
+			thisPlayerState.currentState = State.AWAITING_CLIENT_CONNECTION;
+			gameViewer.addNotification(
+					"Give device name to client: " + ((BattleShipServer) thisPlayerRole).getServerName());
+			stateChanged = true;
 		}
+		return stateChanged;
 	}
 
 	// selects the client role for this machine
 	public boolean selectClientRole(String name) {
 		boolean stateChanged = false;
-		if (thisPlayerState.currentState == State.SELECTING_HOST) {
+		if (thisPlayerState.currentState == State.SELECTING_SERVER) {
 			serverName = name;
 			thisPlayerRole = new BattleShipClient(serverName);
 			thisPlayerState.currentState = State.SHIP_PLACEMENT;
@@ -409,7 +345,7 @@ public class Controller {
 		boolean stateChanged = false;
 		if (thisPlayerState.currentState == State.SETUP) {
 			name = newName;
-			thisPlayerState.currentState = State.SELECTING_HOST;
+			thisPlayerState.currentState = State.SELECTING_SERVER;
 			stateChanged = true;
 		}
 		return stateChanged;

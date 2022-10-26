@@ -6,12 +6,13 @@
  */
 public class State {
     static volatile int SETUP = 0;
-    static volatile int SELECTING_HOST = 1;
-    static volatile int CONNECT_TO_HOST = 2;
-    static volatile int SHIP_PLACEMENT = 3;
-    static volatile int SELECTING_VOLLEY = 4;
-    static volatile int AWAITING_INCOMING_VOLLEY = 5;
-    static volatile int END_GAME = 6;
+    static volatile int SELECTING_SERVER = 1;
+    static volatile int CONNECT_TO_SERVER = 2;
+    static volatile int AWAITING_CLIENT_CONNECTION = 3;
+    static volatile int SHIP_PLACEMENT = 4;
+    static volatile int SELECTING_VOLLEY = 5;
+    static volatile int AWAITING_INCOMING_VOLLEY = 6;
+    static volatile int END_GAME = 7;
     public volatile int currentState;
 
     public State(){
