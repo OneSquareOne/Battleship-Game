@@ -1,7 +1,8 @@
 public class Model {
     Controller gameController;
-    	private Player thisPlayer; // TODO: Move to model
-	private Player opponentShadow; // TODO:Move to model
+    
+    private Player thisPlayer;
+	private Player opponentShadow; 
 	private State thisPlayerState;
 
     public Model(Controller controller){

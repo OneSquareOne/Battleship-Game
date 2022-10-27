@@ -1,8 +1,10 @@
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -87,26 +89,33 @@ public class startupscreen extends JPanel implements ActionListener {
 			}
 		});
 
-		/*
-		 * JButton Enter=new JButton("Enter");
-		 * Enter.setBounds(0, 25, 100, 50);
-		 * 
-		 * frame.add(Enter);
-		 * Enter.addActionListener(new ActionListener() {
-		 * 
-		 * @Override
-		 * public void actionPerformed(ActionEvent e) {
-		 * 
-		 * frame.getContentPane().removeAll();
-		 * name=namefield.getText();
-		 * servername=serverfield.getText();
-		 * //submit all information
-		 * JOptionPane.showMessageDialog(frame,name+"  "+servername+"  "+amserver);
-		 * new notificationfield(frame);
-		 * 
-		 * }
-		 * });
-		 */
+		JButton Enter = new JButton("Enter");
+		Enter.setBounds(0, 25, 100, 50);
+
+		frame.add(Enter);
+		Enter.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog newJframe = new JDialog();
+				newJframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				newJframe.setLayout(null);
+				newJframe.setSize(50, 750);
+				newJframe.setVisible(true);
+				newJframe.setAlwaysOnTop(true);
+				newJframe.setModal(true);
+				newJframe.setModalityType(ModalityType.APPLICATION_MODAL);
+				
+				name = namefield.getText();
+				servername = serverfield.getText();
+				// submit all information
+				//JOptionPane.showMessageDialog(frame, name + "  " + servername + "  " + amserver);
+				
+				new notificationfield(frame);
+
+			}
+		});
+
 	}
 
 	@Override

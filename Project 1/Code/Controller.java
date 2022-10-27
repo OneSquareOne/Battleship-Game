@@ -247,18 +247,18 @@ public class Controller {
 
 		if (hit) {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
-			System.out.println(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!"); // TODO: move to
-																										// gui
+			gameViewer.addNotification(receivingPlayer.getName() + "'s " + shipHit.getName() + " was hit!");
 			shootingPlayer.getTargetGrid().isHit(row, col);
 			if (shipHit.isSunk()) {
-				System.out.println("The " + shipHit.getName() + " was sunk!");
+				gameViewer.addNotification("The " + shipHit.getName() + " was sunk!");
+				if(shootingPlayer == thisPlayer){
+					gameViewer.enemyShipSunk(shipHit.getID()); //changes ship image to sunk
+				}
 			}
-
 		} else {
-			System.out.println("Miss!\n");
 			shootingPlayer.getTargetGrid().isMiss(row, col);
+			gameViewer.addNotification(shootingPlayer.getName()+ "'s volley missed!");
 		}
-		System.out.println();
 	}
 
 	// check for victory condition; returns winner # or -1 if no winner yet

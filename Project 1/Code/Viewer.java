@@ -397,6 +397,14 @@ public class Viewer {
 
 	}
 
+	public void winCondition(){
+		JFrame winFrame = new JFrame();
+		winFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		winFrame.setLayout(null);
+		winFrame.setSize(50, 750);
+		winFrame.setVisible(true);
+		winFrame.setAlwaysOnTop(true);
+	}
 	// turns on ship buttons in preparation for placement
 	public void activateShipPlacement() {
 		serverButton.setVisible(false);
@@ -443,6 +451,26 @@ public class Viewer {
 	public void updateOceanGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonOceanGridArray[row][col].setIcon(newImage);
+	}
+
+	//updates the enemy ship image to indicate that it is sunk
+	public void enemyShipSunk(int shipID){
+		if(shipID == 1){
+			ImageIcon sunk = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
+			buttonShipArray[0].setIcon(sunk);
+		}else if(shipID == 2){
+			ImageIcon sunk = new ImageIcon("./Images/Battleship/Battleship1-2.png");
+			buttonShipArray[1].setIcon(sunk);
+		}else if(shipID ==3){
+			ImageIcon sunk = new ImageIcon("./Images/Cruiser/Cruiser1-2.png");
+			buttonShipArray[2].setIcon(sunk);
+		}else if (shipID == 4){
+			ImageIcon sunk = new ImageIcon("./Images/Submarine/Submarine1-2.png");
+			buttonShipArray[3].setIcon(sunk);
+		}else if(shipID ==5){
+			ImageIcon sunk = new ImageIcon("./Images/Destroyer/Destroyer1-2.png");
+			buttonShipArray[4].setIcon(sunk);
+		}
 	}
 
 	// sets turn label to "Your Turn"
