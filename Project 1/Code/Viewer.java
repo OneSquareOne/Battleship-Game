@@ -14,6 +14,7 @@ public class Viewer {
 
 	private Controller gameController; // so the viewer be accessed by the controller
 	private JFrame frame;
+	private JPanel boats;
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
 	private JButton buttonShipArray[]; // used for updating ship boat area
@@ -22,21 +23,40 @@ public class Viewer {
 	private JTextField textArea;
 	private JButton horizontalButton;
 	private JButton autoPlaceButton;
+	private JLabel turnLabel;
+	private JLabel playerNameLabel;
+	private JLabel opponentNameLabel;
 	protected static JTextArea notificationArea;
 	private String playerName;
-	private boolean horizontal = true;
+	private String opponentName;
+	private boolean horizontal;
 	private ImageIcon startup;
-	private int shipID = 0; // saves ship selected for ship placement
+	private ImageIcon playerTurn;
+	private ImageIcon opponentTurn;
+	private int shipID; // saves ship selected for ship placement
 
 	// constructor
 	public Viewer(Controller controller) throws BadLocationException {
-		gameController = controller; // for registering viewer as an observer of the controller
+		gameController = controller; // for registering viewer as an "observer" of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
 		startup = new ImageIcon("./Images/Other/blankOcean.jpg");
+		playerTurn = new ImageIcon("./Images/Other/yourTurn1.png");
+		opponentTurn = new ImageIcon("./Images/Other/opponentsTurn.png");
 		buttonTargetGridArray = new JButton[10][10];
 		buttonOceanGridArray = new JButton[10][10];
 		buttonShipArray = new JButton[5];
+		horizontal = true;
+		shipID = 0;
+		createAllElements();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(null);
+		frame.setSize(1500, 1000);
+		frame.setVisible(true);
+	}
+
+	// creates and adds all frame elements
+	private void createAllElements() throws BadLocationException {
 		createNameEntryArea();
 		createNotificationArea();
 		createTargetGrid();
@@ -46,10 +66,9 @@ public class Viewer {
 		createAutoPlaceShipsButton();
 		createServerButton();
 		createClientButton();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(null);
-		frame.setSize(1500, 1000);
-		frame.setVisible(true);
+		createTurnLabel();
+		createOpponentLabel();
+		createPlayerLabel();
 	}
 
 	// creates the target grid area filled with a button grid for selecting a shot
@@ -116,6 +135,7 @@ public class Viewer {
 		frame.add(buttonGrid);
 	}
 
+	//creates ocean grid and sets up ocean grid buttons
 	private void createOceanGrid() {
 		JPanel buttonGrid2 = new JPanel();
 		buttonGrid2.setLayout(new GridLayout(10, 10));
@@ -140,8 +160,9 @@ public class Viewer {
 		frame.add(buttonGrid2);
 	}
 
+	//creates the ship area to be used, first for selection, then for keeping track of kills
 	private void createBoatArea() {
-		JPanel boats = new JPanel();
+		boats = new JPanel();
 		// ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for
 		// background
 		boats.setBounds(740, 160, 610, 145);
@@ -177,6 +198,7 @@ public class Viewer {
 		frame.add(boats);
 	}
 
+	//creates the name entry area to take in player name
 	private void createNameEntryArea() {
 
 		JTextField prompt = new JTextField("Player Name:"); // player name label
@@ -200,14 +222,10 @@ public class Viewer {
 				playerName = nameArea.getText(); // gets text from field
 				boolean stateChanged = gameController.setPlayerName(playerName); // checks if successful
 				if (stateChanged) {
-					nameArea.setEnabled(false); // text box not longer enabled
-					nameArea.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
-					nameArea.setDisabledTextColor(Color.black); // font color
-					nameArea.setBorder(javax.swing.BorderFactory.createEmptyBorder()); // no border
-					nameArea.setOpaque(false); // background transparent
+					nameArea.setVisible(false); // text box not longer enabled
 					prompt.setVisible(false); // gets rid of prompt
-					nameArea.setBounds(100, 50, 350, 50);// resize to prompt area
-					nameArea.setText("Player:  " + playerName);
+					playerNameLabel.setText("Player:  " + playerName);
+					playerNameLabel.setVisible(true);
 					serverButton.setVisible(true);
 					clientButton.setVisible(true);
 				}
@@ -264,8 +282,8 @@ public class Viewer {
 
 		autoPlaceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (gameController.autoPlaceShips()) //if controller successfully places ships
-					shipPlacementComplete(); // turns off buttons
+				if (gameController.autoPlaceShips()) // if controller successfully places ships
+					shipPlacementComplete();
 			}
 		});
 
@@ -355,6 +373,30 @@ public class Viewer {
 
 	}
 
+	private void createTurnLabel() {
+		turnLabel = new JLabel();
+		turnLabel.setBounds(750, 205, 590, 90);
+		turnLabel.setVisible(false);
+		frame.add(turnLabel);
+	}
+
+	private void createPlayerLabel() {
+		playerNameLabel = new JLabel();
+		playerNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		playerNameLabel.setBounds(240, 50, 350, 50);
+		playerNameLabel.setVisible(false);
+		frame.add(playerNameLabel);
+	}
+
+	private void createOpponentLabel() {
+		opponentNameLabel = new JLabel();
+		opponentNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
+		opponentNameLabel.setBounds(240, 20, 350, 50);
+		opponentNameLabel.setVisible(false);
+		frame.add(opponentNameLabel);
+
+	}
+
 	// turns on ship buttons in preparation for placement
 	public void activateShipPlacement() {
 		serverButton.setVisible(false);
@@ -367,23 +409,50 @@ public class Viewer {
 		}
 	}
 
+	// moves notification area, turns on turn indicator button
 	public void shipPlacementComplete() {
 		autoPlaceButton.setVisible(false);
 		horizontalButton.setVisible(false);
 
 		for (int i = 0; i < 5; i++) { // turn on ship icons
+			buttonShipArray[i].setEnabled(true);
 			buttonShipArray[i].setFocusPainted(false); // stops hightlighting box around ship
 		}
+
+		notificationArea.setBounds(750, 70, 591, 130);
+		boats.setBounds(74, 110, 610, 145);
+		turnLabel.setVisible(true);
+		playerNameLabel.setBounds(920, 20, 350, 50);
+		opponentName = gameController.getOpponentName();
+		opponentNameLabel.setText("Opponent: " + opponentName);
+		opponentNameLabel.setVisible(true);
+
+		JLabel opponentShips = new JLabel("Ships left to destroy:");
+		opponentShips.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
+		opponentShips.setBounds(250, 60, 350, 50);
+		frame.add(opponentShips);
 	}
 
+	// updates target grid at location with parameter image path
 	public void updateTargetGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonTargetGridArray[row][col].setIcon(newImage);
 	}
 
+	// updates ocean grid at location with parameter image path
 	public void updateOceanGrid(int row, int col, String imageFilePath) {
 		ImageIcon newImage = new ImageIcon(imageFilePath);
 		buttonOceanGridArray[row][col].setIcon(newImage);
+	}
+
+	// sets turn label to "Your Turn"
+	public void setTurnLabelPlayersTurn() {
+		turnLabel.setIcon(playerTurn);
+	}
+
+	// sets turn label to "Incoming"
+	public void setTurnLabelOpponentsTurn() {
+		turnLabel.setIcon(opponentTurn);
 	}
 
 	// adds text to the notification area

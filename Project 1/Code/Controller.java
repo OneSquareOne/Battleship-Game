@@ -64,12 +64,14 @@ public class Controller {
 		// Players swap names, sever sends first; BLOCKING method call
 		swapNames();
 		gameViewer.addNotification("Connection successful.  Opponent: " + opponentShadow.getName());
-		// TODO: move opponnent name above notification area here
+		gameViewer.addNotification(thisPlayer.getName()+ ", place your ships.");
 
-		// ships placed in GUI
+		//waiting for ship placement in Viewer
 		while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 		}
 
+		gameViewer.shipPlacementComplete();
+		gameViewer.addNotification("All ships placed successfully.");
 		gameViewer.addNotification("Local ships placed, waiting for " + opponentShadow.getName() + ".");
 
 		// Players swap ocean grids, sever sends first; BLOCKING method call
@@ -79,10 +81,10 @@ public class Controller {
 
 		// the next if/else preserves play order; it has the server shoot first
 		if (thisPlayerRole instanceof BattleShipServer) {
-			gameViewer.addNotification(thisPlayer.getName() + "'s the server.  The server fires first!");
+			gameViewer.addNotification("The server fires first. It's your turn!");
 			thisPlayerState.currentState = State.SELECTING_VOLLEY;
 		} else if (thisPlayerRole instanceof BattleShipClient) {
-			gameViewer.addNotification(thisPlayer.getName() + "'s the client.  The server fires first!");
+			gameViewer.addNotification("The server fires first. It's " + opponentShadow.getName() + "'s turn");
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 		}
 
@@ -90,7 +92,7 @@ public class Controller {
 
 			// this player's turn to shoot
 			if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
-
+				gameViewer.setTurnLabelPlayersTurn();
 				while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
 				} // wait for volley to be selected from GUI
 
@@ -102,7 +104,7 @@ public class Controller {
 
 			// if game isn't over, opponent's turn to shoot
 			if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
-
+				gameViewer.setTurnLabelOpponentsTurn();
 				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
 				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
 				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
@@ -183,8 +185,6 @@ public class Controller {
 				updateViewerOceanGridWithShip(tempShip);
 
 				if (thisPlayer.getShipsToBePlaced() == 0) { // all ships placed
-					gameViewer.addNotification("All ships placed successfully.");
-					gameViewer.shipPlacementComplete();
 					thisPlayerState.currentState = State.SELECTING_VOLLEY;
 				}
 			}
@@ -366,5 +366,10 @@ public class Controller {
 			stateChanged = true;
 		}
 		return stateChanged;
+	}
+
+	//return opponents name (players name is already known by user entry)
+	public String getOpponentName(){
+		return opponentShadow.getName();
 	}
 }
