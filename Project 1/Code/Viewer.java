@@ -6,6 +6,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.text.BadLocationException;
@@ -36,7 +37,7 @@ public class Viewer {
 	private int shipID; // saves ship selected for ship placement
 
 	// constructor
-	public Viewer(Controller controller) throws BadLocationException {
+	public Viewer(Controller controller) throws BadLocationException, IOException {
 		gameController = controller; // for registering viewer as an "observer" of the controller
 		gameController.registerViewer(this);// register viewer
 		frame = new JFrame("BattleShip v1.0 - Ryan Collins, John Schmidt");
@@ -56,7 +57,7 @@ public class Viewer {
 	}
 
 	// creates and adds all frame elements
-	private void createAllElements() throws BadLocationException {
+	private void createAllElements() throws BadLocationException, IOException {
 		createNameEntryArea();
 		createNotificationArea();
 		createTargetGrid();
@@ -69,6 +70,7 @@ public class Viewer {
 		createTurnLabel();
 		createOpponentLabel();
 		createPlayerLabel();
+		loseCondition();
 	}
 
 	// creates the target grid area filled with a button grid for selecting a shot
@@ -135,7 +137,7 @@ public class Viewer {
 		frame.add(buttonGrid);
 	}
 
-	//creates ocean grid and sets up ocean grid buttons
+	// creates ocean grid and sets up ocean grid buttons
 	private void createOceanGrid() {
 		JPanel buttonGrid2 = new JPanel();
 		buttonGrid2.setLayout(new GridLayout(10, 10));
@@ -160,7 +162,8 @@ public class Viewer {
 		frame.add(buttonGrid2);
 	}
 
-	//creates the ship area to be used, first for selection, then for keeping track of kills
+	// creates the ship area to be used, first for selection, then for keeping track
+	// of kills
 	private void createBoatArea() {
 		boats = new JPanel();
 		// ImageIcon boatArea = new ImageIcon("./Images/Other/Ocean.jpg"); //DEBUG for
@@ -198,7 +201,7 @@ public class Viewer {
 		frame.add(boats);
 	}
 
-	//creates the name entry area to take in player name
+	// creates the name entry area to take in player name
 	private void createNameEntryArea() {
 
 		JTextField prompt = new JTextField("Player Name:"); // player name label
@@ -397,14 +400,70 @@ public class Viewer {
 
 	}
 
-	public void winCondition(){
-		JFrame winFrame = new JFrame();
+	// game was won, call end game window
+	public void winCondition() throws IOException {
+		endGameWindow(true);
+	}
+
+	// game was lost, call end game window
+	public void loseCondition() throws IOException {
+		endGameWindow(false);
+	}
+
+	//sets up the end game window
+	private void endGameWindow(boolean won) throws IOException {
+
+		JFrame winFrame = new JFrame(); // new popup frame contains label and buttons
+
+		ImageIcon icon;
+
+		if (won) { // set correct background
+			icon = new ImageIcon("./Images/Other/win.jpg");
+
+		} else {
+			icon = new ImageIcon("./Images/Other/lose.jpg");
+		}
+
+		JLabel picLabel = new JLabel(icon); // background picture
+		picLabel.setBounds(0, 0, 585, 395);
+
+		winFrame.setLocation(frame.getX() + 450, frame.getY() + 350);
 		winFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		winFrame.setLayout(null);
-		winFrame.setSize(50, 750);
+		winFrame.setSize(600, 395);
 		winFrame.setVisible(true);
 		winFrame.setAlwaysOnTop(true);
+
+		// play again button
+		ImageIcon playAgain = new ImageIcon("./Images/Other/playAgain.png");
+		JButton playAgainButton = new JButton(playAgain);
+		playAgainButton.setBounds(10, 295, 270, 50);
+		playAgainButton.setContentAreaFilled(false);
+		playAgainButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gameController.startNewGame(true);
+				winFrame.dispose();
+			}
+		});
+
+		// end button
+		ImageIcon end = new ImageIcon("./Images/Other/quit.png");
+		JButton endButton = new JButton(end);
+		endButton.setBounds(300, 295, 270, 50);
+		endButton.setContentAreaFilled(false);
+		endButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gameController.startNewGame(false);
+				winFrame.dispose();
+				frame.dispose();
+			}
+		});
+
+		winFrame.add(endButton);
+		winFrame.add(playAgainButton);
+		winFrame.add(picLabel);
 	}
+
 	// turns on ship buttons in preparation for placement
 	public void activateShipPlacement() {
 		serverButton.setVisible(false);
@@ -453,21 +512,21 @@ public class Viewer {
 		buttonOceanGridArray[row][col].setIcon(newImage);
 	}
 
-	//updates the enemy ship image to indicate that it is sunk
-	public void enemyShipSunk(int shipID){
-		if(shipID == 1){
-			ImageIcon sunk = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier1-2.png");
+	// updates the enemy ship image to indicate that it is sunk
+	public void enemyShipSunk(int shipID) {
+		if (shipID == 1) {
+			ImageIcon sunk = new ImageIcon("./Images/AircraftCarrier/AircraftCarrier2-2.png");
 			buttonShipArray[0].setIcon(sunk);
-		}else if(shipID == 2){
+		} else if (shipID == 2) {
 			ImageIcon sunk = new ImageIcon("./Images/Battleship/Battleship1-2.png");
 			buttonShipArray[1].setIcon(sunk);
-		}else if(shipID ==3){
+		} else if (shipID == 3) {
 			ImageIcon sunk = new ImageIcon("./Images/Cruiser/Cruiser1-2.png");
 			buttonShipArray[2].setIcon(sunk);
-		}else if (shipID == 4){
+		} else if (shipID == 4) {
 			ImageIcon sunk = new ImageIcon("./Images/Submarine/Submarine1-2.png");
 			buttonShipArray[3].setIcon(sunk);
-		}else if(shipID ==5){
+		} else if (shipID == 5) {
 			ImageIcon sunk = new ImageIcon("./Images/Destroyer/Destroyer1-2.png");
 			buttonShipArray[4].setIcon(sunk);
 		}
@@ -563,12 +622,6 @@ public class Viewer {
 				horizontal = true;
 				horizontalButton.setText("Horizontal");
 			}
-		}
-	}
-
-	public class newGameListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			// TODO: fill out with new game communication to controller
 		}
 	}
 }

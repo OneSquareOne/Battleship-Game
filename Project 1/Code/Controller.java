@@ -64,69 +64,75 @@ public class Controller {
 		// Players swap names, sever sends first; BLOCKING method call
 		swapNames();
 		gameViewer.addNotification("Connection successful.  Opponent: " + opponentShadow.getName());
-		gameViewer.addNotification(thisPlayer.getName()+ ", place your ships.");
 
-		//waiting for ship placement in Viewer
+		
+		// MAIN PLAY WHILE LOOP
 		while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
-		}
 
-		gameViewer.shipPlacementComplete();
-		gameViewer.addNotification("All ships placed successfully.");
-		gameViewer.addNotification("Local ships placed, waiting for " + opponentShadow.getName() + ".");
+			gameViewer.addNotification(thisPlayer.getName() + ", place your ships.");
 
-		// Players swap ocean grids, sever sends first; BLOCKING method call
-		swapGrids();
-
-		gameViewer.addNotification("Ships placement completed for both players.");
-
-		// the next if/else preserves play order; it has the server shoot first
-		if (thisPlayerRole instanceof BattleShipServer) {
-			gameViewer.addNotification("The server fires first. It's your turn!");
-			thisPlayerState.currentState = State.SELECTING_VOLLEY;
-		} else if (thisPlayerRole instanceof BattleShipClient) {
-			gameViewer.addNotification("The server fires first. It's " + opponentShadow.getName() + "'s turn");
-			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
-		}
-
-		while (currentWinner == -1) { // main play loop
-
-			// this player's turn to shoot
-			if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
-				gameViewer.setTurnLabelPlayersTurn();
-				while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
-				} // wait for volley to be selected from GUI
-
-				bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
-				thisPlayerRole.send(rowColArray); // send shot to real opponent
-				updateViewerTargetGridLocation(rowColArray[0], rowColArray[1]);
-				currentWinner = checkForWinner(thisPlayer, opponentShadow); // changes state if winner
+			// waiting for ship placement in Viewer
+			while (thisPlayerState.currentState == State.SHIP_PLACEMENT) {
 			}
 
-			// if game isn't over, opponent's turn to shoot
-			if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
-				gameViewer.setTurnLabelOpponentsTurn();
-				rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
-				shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
-				bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
-				updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
+			gameViewer.shipPlacementComplete();
+			gameViewer.addNotification("All ships placed successfully.");
+			gameViewer.addNotification("Local ships placed, waiting for " + opponentShadow.getName() + ".");
+
+			// Players swap ocean grids, sever sends first; BLOCKING method call
+			swapGrids();
+
+			gameViewer.addNotification("Ships placement completed for both players.");
+
+			// the next if/else preserves play order; it has the server shoot first
+			if (thisPlayerRole instanceof BattleShipServer) {
+				gameViewer.addNotification("The server fires first. It's your turn!");
 				thisPlayerState.currentState = State.SELECTING_VOLLEY;
-				currentWinner = checkForWinner(thisPlayer, opponentShadow);// changes state if winner
+			} else if (thisPlayerRole instanceof BattleShipClient) {
+				gameViewer.addNotification("The server fires first. It's " + opponentShadow.getName() + "'s turn");
+				thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
 			}
-		}
 
-		// declare winners
-		// TODO: move all this stuff to the GUI
-		if (currentWinner == 1)
-			System.out.println("We have a winner!  " + thisPlayer.getName() + " is this round's winnner.");
-		else
-			System.out.println("We have a winner!  " + opponentShadow.getName() + " is this round's winnner.");
+			while (currentWinner == -1) { // main play loop
 
-		System.out.println(thisPlayer.getName() + ": " + thisPlayer.getWins() + " wins");
-		System.out.println(opponentShadow.getName() + ": " + opponentShadow.getWins() + " wins");
+				// this player's turn to shoot
+				if (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+					gameViewer.setTurnLabelPlayersTurn();
+					while (thisPlayerState.currentState == State.SELECTING_VOLLEY) {
+					} // wait for volley to be selected from GUI
+
+					bombardPlayer(thisPlayer, opponentShadow); // process shot from current player
+					thisPlayerRole.send(rowColArray); // send shot to real opponent
+					updateViewerTargetGridLocation(rowColArray[0], rowColArray[1]);
+					currentWinner = checkForWinner(thisPlayer, opponentShadow); // changes state if winner
+				}
+
+				// if game isn't over, opponent's turn to shoot
+				if (thisPlayerState.currentState == State.AWAITING_INCOMING_VOLLEY) {
+					gameViewer.setTurnLabelOpponentsTurn();
+					rowColArray = (int[]) thisPlayerRole.receive(); // get shot from opponent
+					shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
+					bombardPlayer(opponentShadow, thisPlayer);// process shot from shadow opponent
+					updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
+					thisPlayerState.currentState = State.SELECTING_VOLLEY;
+					currentWinner = checkForWinner(thisPlayer, opponentShadow);// changes state if winner
+				}
+			}
+
+			// declare winners
+			if (currentWinner == 1)
+				gameViewer.winCondition();
+			else
+				gameViewer.loseCondition();
+
+			// wait for player end game choice; play again sets state to ship placement and restarts
+			// loop. End game sets state to setup so loop is not repeated and connection is closed
+			while (thisPlayerState.currentState == State.END_GAME) {
+			}
+		}//end of main play (while) loop
+
 		thisPlayerRole.closeConnection();
-
-		// TODO: Encapsulate in a loop if desired
-	}
+	}// end of playGame
 
 	// Players swap names, sever sends first
 	private void swapNames() throws IOException {
@@ -251,13 +257,13 @@ public class Controller {
 			shootingPlayer.getTargetGrid().isHit(row, col);
 			if (shipHit.isSunk()) {
 				gameViewer.addNotification("The " + shipHit.getName() + " was sunk!");
-				if(shootingPlayer == thisPlayer){
-					gameViewer.enemyShipSunk(shipHit.getID()); //changes ship image to sunk
+				if (shootingPlayer == thisPlayer) {
+					gameViewer.enemyShipSunk(shipHit.getID()); // changes ship image to sunk
 				}
 			}
 		} else {
 			shootingPlayer.getTargetGrid().isMiss(row, col);
-			gameViewer.addNotification(shootingPlayer.getName()+ "'s volley missed!");
+			gameViewer.addNotification(shootingPlayer.getName() + "'s volley missed!");
 		}
 	}
 
@@ -368,8 +374,17 @@ public class Controller {
 		return stateChanged;
 	}
 
-	//return opponents name (players name is already known by user entry)
-	public String getOpponentName(){
+	// return opponents name (players name is already known by user entry)
+	public String getOpponentName() {
 		return opponentShadow.getName();
+	}
+
+	// returns game to play loop if new game button is selected
+	public void startNewGame(boolean newGame) {
+		if (newGame && (thisPlayerState.currentState == State.END_GAME)) {
+			thisPlayerState.currentState = State.SHIP_PLACEMENT;
+		} else if (!newGame && (thisPlayerState.currentState == State.END_GAME)) {
+			thisPlayerState.currentState = State.SETUP;
+		}
 	}
 }
