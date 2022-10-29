@@ -1,12 +1,13 @@
-import java.io.File;
+/* Sound loads and play sound files appropriate for the situation in the battleship game.  In this
+ * format, .wav files at a 16-bit sample rate are functional.  Other format functionality is unknown
+ * Author: Ryan Collins, John Schmidt
+ * Late Update: 10/29/2022
+ */
 
+import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.event.*;
 
 public class Sound {
 
@@ -15,30 +16,9 @@ public class Sound {
     private SoundEffect opponentHitPlayer;
     private SoundEffect opponentMissPlayer;
 
+    //constructor
     public Sound() {
 
-        /*
-         * JFrame window = new JFrame();
-         * window.setLayout(null);
-         * window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         * window.setBounds(0, 0, 500, 500);
-         * JPanel panel = new JPanel();
-         * panel.setBounds(0, 0, 500, 500);
-         * JButton button = new JButton();
-         * button.setBounds(200,200,50,50);
-         * button.addActionListener(new ActionListener() {
-         * public void actionPerformed(ActionEvent e){
-         * se.play();
-         * System.out.println("Sound played");
-         * }
-         * });
-         * 
-         * window.add(panel);
-         * panel.add(button);
-         * window.setVisible(true);
-         * panel.setVisible(true);
-         * button.setVisible(true);
-         */
         playerHitOpponent = new SoundEffect();
         playerMissOpponent = new SoundEffect();
         opponentHitPlayer = new SoundEffect();
@@ -50,6 +30,7 @@ public class Sound {
         opponentMissPlayer.setFile("./Sounds/ShotMissO.wav");
     }
 
+    //basic loading and processing for each sound effect
     private class SoundEffect {
         Clip clip;
 
