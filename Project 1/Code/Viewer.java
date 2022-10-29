@@ -483,7 +483,7 @@ public class Viewer {
 
 		for (int i = 0; i < 5; i++) { // turn on ship icons
 			buttonShipArray[i].setEnabled(true);
-			buttonShipArray[i].setFocusPainted(false); // stops hightlighting box around ship
+			buttonShipArray[i].setFocusPainted(false); // stops highlighting box around ship
 		}
 
 		notificationArea.setBounds(750, 70, 591, 130);

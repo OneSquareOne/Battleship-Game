@@ -58,8 +58,6 @@ public class BattleShipServer extends Role {
     // wait for connection to arrive, then display connection info
     private void waitForConnection() throws IOException {
         connection = server.accept(); // allow server to accept connection
-        System.out.println("Connection received from: " +
-                connection.getInetAddress().getHostName()); // TODO: written to in-game text box
     } // end method waitForConnection
 
     // get streams to send and receive data

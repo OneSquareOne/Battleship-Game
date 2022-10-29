@@ -41,10 +41,6 @@ public class BattleShipClient extends Role {
     private void connectToServer() throws IOException {
         // create Socket to make connection to server
         client = new Socket(playServer, 5000);
-
-        // display connection information
-        System.out.println("Connected to: " +
-                client.getInetAddress().getHostName());// TODO: written to in-game text box
     } // end method connectToServer
 
     // get streams to send and receive data
@@ -55,8 +51,6 @@ public class BattleShipClient extends Role {
 
         // set up input stream for objects
         input = new ObjectInputStream(client.getInputStream());
-
-        System.out.println("\nGot I/O streams\n");
     } // end method getStreams
 
     public Object receive() throws IOException {
