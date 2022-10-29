@@ -13,10 +13,12 @@ public class Controller {
 	private int rowColArray[]; // for passing along current shot
 	private Viewer gameViewer;
 	private Model gameModel;
+	private Sound soundEffect;
 
 	// constructor
 	public Controller() {
 		rowColArray = new int[2];
+		soundEffect = new Sound();
 	}
 
 	public void playGame() throws IOException, InterruptedException {
@@ -257,6 +259,13 @@ public class Controller {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
 			gameViewer.addNotification(shootingPlayer.getName() + " hit "+ receivingPlayer.getName()+ "'s " + shipHit.getName() + "!");
 			shootingPlayer.getTargetGrid().isHit(row, col);
+			
+			if(shootingPlayer == gameModel.getThisPlayer()){
+				soundEffect.playHitO();
+			}else{
+				soundEffect.playHitP();
+			}
+
 			if (shipHit.isSunk()) {
 				gameViewer.addNotification("The " + shipHit.getName() + " was sunk!");
 				if (shootingPlayer == gameModel.getThisPlayer()) {
@@ -266,6 +275,12 @@ public class Controller {
 		} else {
 			shootingPlayer.getTargetGrid().isMiss(row, col);
 			gameViewer.addNotification(shootingPlayer.getName() + "'s volley missed!");
+
+			if (shootingPlayer == gameModel.getThisPlayer()) {
+				soundEffect.playMissO();
+			} else {
+				soundEffect.playMissP();
+			}
 		}
 	}
 
