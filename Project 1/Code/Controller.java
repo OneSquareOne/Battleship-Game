@@ -302,7 +302,6 @@ public class Controller {
 			thisPlayer.getOceanGrid().setCurrentShot(row, col);
 			opponentShadow.getOceanGrid().setCurrentShot(row, col);
 			thisPlayerState.currentState = State.AWAITING_INCOMING_VOLLEY;
-			gameViewer.addNotification(thisPlayer.getName() + " shoots at (" + row + ", " + col + ").");
 		}
 	}
 

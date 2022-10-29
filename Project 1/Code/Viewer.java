@@ -70,7 +70,6 @@ public class Viewer {
 		createTurnLabel();
 		createOpponentLabel();
 		createPlayerLabel();
-		loseCondition();
 	}
 
 	// creates the target grid area filled with a button grid for selecting a shot
@@ -549,6 +548,14 @@ public class Viewer {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+	}
+
+	//TODO: set up reset functionality
+	private void resetGameBoard(){
+		//TODO:reset notification area
+		//TODO:reset ships (to not on fire and selectable)
+		//TODO:reset ocean grid
+		//TODO:reset target grid
 	}
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
