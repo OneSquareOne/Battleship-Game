@@ -12,6 +12,7 @@ import javax.sound.sampled.Clip;
 
 public class Sound {
 
+    private SoundEffect click;
     private SoundEffect lastShip;
     private SoundEffect playerHitOpponent;
     private SoundEffect playerMissOpponent;
@@ -38,6 +39,7 @@ public class Sound {
         startFiring = newSoundEffect("./Sounds/startShooting.wav");
         victory = newSoundEffect("./Sounds/victory.wav");
         loss = newSoundEffect("./Sounds/loss.wav");
+        click = newSoundEffect("./Sounds/click.wav");
     }
 
     // basic loading and processing for each sound effect
@@ -69,6 +71,10 @@ public class Sound {
         private void stop() {
             clip.stop();
         }
+
+        private boolean isPlaying() {
+            return clip.isRunning();
+        }
     }
 
     // get new sound effect
@@ -77,6 +83,10 @@ public class Sound {
         temp.setFile(filePath);
         allSoundEffects.add(temp);
         return temp;
+    }
+
+    public void playClick(){
+        click.play();
     }
 
     // player hits the opponent
@@ -99,29 +109,32 @@ public class Sound {
         opponentMissPlayer.play();
     }
 
-    //main background sound
+    // main background sound
     public void mainPlayLoop() {
         mainBackgroundLoop.playLoop();
     }
 
     public void lastShipLoop() {
-        lastShip.playLoop();
+        if (!lastShip.isPlaying())
+            lastShip.playLoop();
     }
 
-    //player only has one ship remaining
-    public void startShooting(){
+    // player only has one ship remaining
+    public void startShooting() {
         startFiring.play();
     }
 
-    public void playVictory(){
+    //new game selection screen
+    public void playVictory() {
         victory.play();
     }
 
-    public void playLoss(){
+    //new game selection screen
+    public void playLoss() {
         loss.play();
     }
 
-    //stops playing any sound effect
+    // stops playing any sound effect
     public void stopAll() {
         for (int i = 0; i < allSoundEffects.size(); i++) {
             allSoundEffects.get(i).stop();

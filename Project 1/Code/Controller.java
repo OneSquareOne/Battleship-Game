@@ -79,6 +79,8 @@ public class Controller {
 			// Players swap ocean grids, sever sends first; BLOCKING method call
 			swapGrids();
 
+			soundEffect.startShooting();
+
 			gameViewer.addNotification("Ships placement completed for both players.");
 
 			// the next if/else preserves play order; it has the server shoot first

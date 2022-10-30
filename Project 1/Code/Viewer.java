@@ -14,8 +14,8 @@ import javax.swing.text.BadLocationException;
 public class Viewer {
 
 	private Controller gameController; // so the viewer be accessed by the controller
-	private JFrame frame; //main window
-	private JPanel boats; 
+	private JFrame frame; // main window
+	private JPanel boats;
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
 	private JButton buttonShipArray[]; // used for updating ship boat area
@@ -35,6 +35,7 @@ public class Viewer {
 	private ImageIcon playerTurn;
 	private ImageIcon opponentTurn;
 	private int shipID; // saves ship selected for ship placement
+	private Sound sound;
 
 	// constructor
 	public Viewer(Controller controller) throws BadLocationException, IOException {
@@ -54,6 +55,7 @@ public class Viewer {
 		frame.setLayout(null);
 		frame.setSize(1500, 1000);
 		frame.setVisible(true);
+		sound = new Sound();
 	}
 
 	// creates and adds all frame elements
@@ -257,7 +259,7 @@ public class Viewer {
 		frame.add(nameArea);
 	}
 
-	//creates the notification area on the left side of the screen
+	// creates the notification area on the left side of the screen
 	private void createNotificationArea() throws BadLocationException {
 		notificationArea = new MyTextArea();
 		notificationArea.setBounds(84, 110, 591, 130);
@@ -268,18 +270,29 @@ public class Viewer {
 		notificationArea.setEditable(false);
 	}
 
-	//creates the horizontal/vertical selection button
+	// creates the horizontal/vertical selection button
 	private void createHorizontalButton() {
 		horizontalButton = new JButton("Horizontal");
 		horizontalButton.setBounds(750, 110, 290, 50);
-		horizontalButton.addActionListener(new horizontalListener());
+		horizontalButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
+				if (horizontal) { // button was horizontal, switch to vertical
+					horizontal = false;
+					horizontalButton.setText("Vertical");
+				} else { // button was vertical, switch to horizontal
+					horizontal = true;
+					horizontalButton.setText("Horizontal");
+				}
+			}
+		});
 		horizontalButton.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
 		frame.add(horizontalButton);
 		horizontalButton.setVisible(false);
 
 	}
 
-	//creates the automatic placement button
+	// creates the automatic placement button
 	private void createAutoPlaceShipsButton() {
 		autoPlaceButton = new JButton("Automatic Placement");
 		autoPlaceButton.setBounds(1050, 110, 290, 50);
@@ -287,6 +300,7 @@ public class Viewer {
 
 		autoPlaceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
 				if (gameController.autoPlaceShips()) // if controller successfully places ships
 					shipPlacementComplete();
 			}
@@ -301,6 +315,7 @@ public class Viewer {
 		serverButton.setBounds(1050, 110, 290, 50);
 		serverButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
 				if (gameController.selectServerRole()) { // try to select server role
 					serverButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 30));
 					serverButton.setEnabled(false);
@@ -315,7 +330,7 @@ public class Viewer {
 		frame.add(serverButton);
 	}
 
-	//creates the client button on the right side of the screen
+	// creates the client button on the right side of the screen
 	private void createClientButton() {
 		clientButton = new JButton("Client"); // creates client button
 		clientButton.setBounds(750, 110, 290, 50);
@@ -324,6 +339,7 @@ public class Viewer {
 
 		clientButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
 				addNotification("Client role selected.");
 				addNotification(playerName + ", enter server's device name.");
 				clientButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 30));
@@ -377,7 +393,7 @@ public class Viewer {
 		frame.add(clientButton);
 	}
 
-	//creates label indicating whose turn to fire it is
+	// creates label indicating whose turn to fire it is
 	private void createTurnLabel() {
 		turnLabel = new JLabel();
 		turnLabel.setBounds(750, 205, 590, 90);
@@ -385,7 +401,7 @@ public class Viewer {
 		frame.add(turnLabel);
 	}
 
-	//creates the player name label for the right side of the screen
+	// creates the player name label for the right side of the screen
 	private void createPlayerLabel() {
 		playerNameLabel = new JLabel();
 		playerNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -394,7 +410,7 @@ public class Viewer {
 		frame.add(playerNameLabel);
 	}
 
-	//creates the opponent name label for the left side of the screen
+	// creates the opponent name label for the left side of the screen
 	private void createOpponentLabel() {
 		opponentNameLabel = new JLabel();
 		opponentNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -414,7 +430,7 @@ public class Viewer {
 		endGameWindow(false);
 	}
 
-	//sets up the end game window
+	// sets up the end game window
 	private void endGameWindow(boolean won) throws IOException {
 
 		JFrame winFrame = new JFrame(); // new popup frame contains label and buttons
@@ -444,6 +460,7 @@ public class Viewer {
 		playAgainButton.setContentAreaFilled(false);
 		playAgainButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
 				gameController.startNewGame(true);
 				winFrame.dispose();
 			}
@@ -456,6 +473,7 @@ public class Viewer {
 		endButton.setContentAreaFilled(false);
 		endButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sound.playClick();
 				gameController.startNewGame(false);
 				winFrame.dispose();
 				frame.dispose();
@@ -554,12 +572,12 @@ public class Viewer {
 		}
 	}
 
-	//TODO: set up reset functionality
-	private void resetGameBoard(){
-		//TODO:reset notification area
-		//TODO:reset ships (to not on fire and selectable)
-		//TODO:reset ocean grid
-		//TODO:reset target grid
+	// TODO: set up reset functionality
+	private void resetGameBoard() {
+		// TODO:reset notification area
+		// TODO:reset ships (to not on fire and selectable)
+		// TODO:reset ocean grid
+		// TODO:reset target grid
 	}
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
@@ -612,25 +630,13 @@ public class Viewer {
 	// implemented
 	public class selectedShipListener implements ActionListener {
 		int buttonID;
+
 		public selectedShipListener(int ID) {
 			buttonID = ID;
 		}
 
 		public void actionPerformed(ActionEvent e) {
 			shipID = buttonID;
-		}
-	}
-
-	// listens to horizontal placement button
-	public class horizontalListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (horizontal) { // button was horizontal, switch to vertical
-				horizontal = false;
-				horizontalButton.setText("Vertical");
-			} else { // button was vertical, switch to horizontal
-				horizontal = true;
-				horizontalButton.setText("Horizontal");
-			}
 		}
 	}
 }
