@@ -408,6 +408,7 @@ public class Controller {
 			updateViewerEntireOceanGrid();
 			updateViewerEntireTargetGrid();
 			backgroundMusic.mainPlayLoop();
+			currentWinner = -1;
 			gameModel.setState(State.SHIP_PLACEMENT);
 		} else if (!newGame && (gameModel.getState() == State.END_GAME)) {
 			gameModel.setState(State.SETUP);

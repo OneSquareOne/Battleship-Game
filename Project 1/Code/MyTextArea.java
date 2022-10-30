@@ -1,3 +1,8 @@
+/* MyTextArea allows for a custom background to be added to a JTextArea
+ * Authors: Ryan Collins, John Schmidt
+ * Last Update: 10/30/2022
+ */
+
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.File;
@@ -18,7 +23,7 @@ public class MyTextArea extends JTextArea {
         }
     }
 
-    @Override
+    //for item repainting
     protected void paintComponent(Graphics g) {
         g.drawImage(img, 0, 0, null);
         super.paintComponent(g);

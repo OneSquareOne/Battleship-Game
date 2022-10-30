@@ -1,8 +1,7 @@
-/* Ship is part of the Battle Ship project.  The Ship class contains all of the data members necessary to 
- * represent a ship in the Battle Ship game.  It is constructed such that if extension of the game rules is
- * desired (additional ships, altered number of shots like the Salvo variant, etc...), the code can be easily modified.
+/* Ship is part of the Battle Ship project. The Ship class contains all of the data members 
+ * necessary to represent a ship in the Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/20/22
+ * Updated: 10/30/22
  */
 
 public class Ship {

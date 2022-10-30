@@ -1,6 +1,6 @@
 /* BattleshipApplication contains the main() to start the Battleship game.
  * Author: Ryan Collins, John Schmidt
- * Last Update: 10/18/2022
+ * Last Update: 10/30/2022
  */
 
 import java.io.IOException;

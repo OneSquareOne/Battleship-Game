@@ -1,7 +1,8 @@
-/* OceanGrid is part of the Battle Ship project.  The OceanGrid class is an implementation of the GameBoard superclass.  It is used to 
- * represent the ocean grid (your view of your own grid and ships) in a Battle Ship game.
+/* OceanGrid is part of the Battle Ship project.  The OceanGrid class is an implementation of the 
+ * GameBoard superclass.  It is used to represent the ocean grid (your view of your own grid and
+ * ships) in a Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/20/2022
+ * Updated: 10/30/2022
  */
 
 import java.util.Random; //for autoPlaceShip()
@@ -56,11 +57,8 @@ public class OceanGrid extends GameBoard {
 
 		} else { // ship is vertical
 			height = ship1.getSize();
-			for (int i = 0; i < height; i++) {
-				if ((row + i) > totalRows - 1 || this.getGridLocationValue(row + i, col) > 0) { // check out of bounds
-																								// and check
-					// grid (greater than 0 means that a
-					// ship is there already)
+			for (int i = 0; i < height; i++) { //check out of bounds and spot already filled
+				if ((row + i) > totalRows - 1 || this.getGridLocationValue(row + i, col) > 0) { 
 					return false;
 				}
 			}
@@ -109,9 +107,9 @@ public class OceanGrid extends GameBoard {
 
 				int row = rand.nextInt(totalRows); // generate random row between 0-totalRows
 				int col = rand.nextInt(totalCols); // generate random row between 0-totalCols
-				boolean horziontal = rand.nextBoolean(); // generate random T/F
+				boolean horizontal = rand.nextBoolean(); // generate random T/F
 
-				validPlacement = this.placeShip(row, col, ship1, horziontal); // try to place ship
+				validPlacement = this.placeShip(row, col, ship1, horizontal); // try to place ship
 
 			}
 		}
@@ -148,7 +146,7 @@ public class OceanGrid extends GameBoard {
 		return NUM_SHIPS;
 	}
 
-	// get ships remaining unsunk
+	// get ships remaining afloat
 	public int shipsLeft() {
 		int remainingShips = NUM_SHIPS;
 

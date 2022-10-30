@@ -190,7 +190,13 @@ public class Viewer {
 
 		// add attributes to each ship
 		for (int i = 0; i < 5; i++) {
-			buttonShipArray[i].addActionListener(new selectedShipListener(i + 1));
+			final int id = i;
+			buttonShipArray[i].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					shipID = id + 1;
+					sound.playShipChime();
+				}
+			});
 			buttonShipArray[i].setFont(new Font(Font.DIALOG, Font.BOLD, 30));
 			buttonShipArray[i].setOpaque(false);
 			buttonShipArray[i].setContentAreaFilled(false);
@@ -487,7 +493,7 @@ public class Viewer {
 		winFrame.add(playAgainButton);
 		winFrame.add(picLabel);
 
-		winFrame.repaint();	
+		winFrame.repaint();
 	}
 
 	// turns on ship buttons in preparation for placement
@@ -578,11 +584,15 @@ public class Viewer {
 		}
 	}
 
-	//resets game board //TODO: revalidate may or may not work to refresh screen
+	// resets game board 
 	private void resetGameBoard() {
 		notificationArea.setBounds(84, 110, 591, 130);
 		frame.remove(boats);
+		frame.remove(autoPlaceButton);
+		frame.remove(turnLabel);
 		createBoatArea();
+		createAutoPlaceShipsButton();
+		createTurnLabel();
 		activateShipPlacement();
 		frame.revalidate();
 	}
@@ -622,28 +632,13 @@ public class Viewer {
 
 			boolean successful = gameController.tryPlaceShip(row, col, shipID, horizontal);
 			if (successful) {
+				sound.playEmbark();
 				buttonShipArray[shipID - 1].setEnabled(false); // sets ship button to disabled
 				shipID = -1; // resets shipID so player needs to click another ship
 				autoPlaceButton.setEnabled(false);
 				autoPlaceButton.setFont(new Font(Font.DIALOG, Font.ITALIC, 24));
 				autoPlaceButton.setText("Ships Placed Manually");
 			}
-		}
-	}
-
-	// selectedShipListener will act as the ship selection so that the ocean grid
-	// knows which
-	// ship needs to be placed; may need to be modified once drag and drop is
-	// implemented
-	public class selectedShipListener implements ActionListener {
-		int buttonID;
-
-		public selectedShipListener(int ID) {
-			buttonID = ID;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			shipID = buttonID;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 /* Player is part of the Battle Ship project.  Player represents the data for each individual player
  * in a game of Battle Ship. 
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/20/2022
+ * Updated: 10/30/2022
  */
 
 public class Player {
@@ -95,6 +95,7 @@ public class Player {
 		return playerName;
 	}
 
+	//resets just the board and remaining ships data members
 	public void resetBoard(){
 		target = new TargetGrid(boardRows, boardCols);
 		ocean = new OceanGrid(boardRows, boardCols);

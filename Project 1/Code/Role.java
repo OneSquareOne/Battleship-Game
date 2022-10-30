@@ -1,6 +1,6 @@
-/* Role is the interface for the server and client roles.
+/* Role is the interface for the server and client roles. It is mostly self explanatory.
  * Author: Ryan Collins, John Schmidt
- * Last Update: 10/15/2022
+ * Last Update: 10/30/2022
  */
 
 import java.io.IOException;

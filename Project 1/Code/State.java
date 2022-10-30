@@ -16,6 +16,7 @@ public class State {
     static volatile int END_GAME = 7;
     public volatile int currentState;
 
+    //constructor
     public State(){
         currentState = SETUP;
     }

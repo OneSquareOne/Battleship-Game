@@ -1,6 +1,6 @@
 /* Sound loads and play sound files appropriate for the situation in the battleship game.  In this
  * format, .wav files at a 16-bit sample rate are functional.  Other format functionality is unknown
- * Author: Ryan Collins, John Schmidt
+ * Authors: Ryan Collins, John Schmidt
  * Late Update: 10/29/2022
  */
 
@@ -22,6 +22,8 @@ public class Sound {
     private SoundEffect startFiring;
     private SoundEffect victory;
     private SoundEffect loss;
+    private SoundEffect shipChime;
+    private SoundEffect embark;
     private ArrayList<SoundEffect> allSoundEffects;
 
     // constructor
@@ -40,6 +42,8 @@ public class Sound {
         victory = newSoundEffect("./Sounds/victory.wav");
         loss = newSoundEffect("./Sounds/loss.wav");
         click = newSoundEffect("./Sounds/click.wav");
+        shipChime = newSoundEffect("./Sounds/shipChime.wav");
+        embark = newSoundEffect("./Sounds/embark.wav");
     }
 
     // basic loading and processing for each sound effect
@@ -83,6 +87,14 @@ public class Sound {
 
     public void playClick() {
         click.play();
+    }
+
+    public void playShipChime(){
+        shipChime.play();
+    }
+    
+    public void playEmbark(){
+        embark.play();
     }
 
     // player hits the opponent

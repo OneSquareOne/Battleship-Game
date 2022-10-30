@@ -1,3 +1,9 @@
+/* Model is the model part of the MVC design pattern for the Battleship game. It contains all of the
+ * data that represents game members.
+ * Authors: Ryan Collins, John Schmidt
+ * Date: 10/30/2022
+ */
+
 public class Model {
     Controller gameController;
     
@@ -8,6 +14,7 @@ public class Model {
     static final int BOARD_ROWS = 10; // can be changed for larger board size
     static final int BOARD_COLS = 10;
 
+    //constructor
     public Model(Controller controller){
         gameController = controller;
         gameController.registerModel(this);
@@ -28,6 +35,7 @@ public class Model {
         return thisPlayerState.currentState;
     }
 
+    //return role (server or client)
     public Role getRole(){
         return thisPlayerRole;
     }
@@ -43,7 +51,6 @@ public class Model {
     public void setClientRole(String serverName){
         thisPlayerRole = new BattleShipClient(serverName);
     }
-
 
     public void resetGameBoard(){
         thisPlayer.reinitializeBoard();
