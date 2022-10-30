@@ -5,33 +5,42 @@
  */
 
 import java.io.File;
+import java.util.ArrayList;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
 public class Sound {
 
+    private SoundEffect lastShip;
     private SoundEffect playerHitOpponent;
     private SoundEffect playerMissOpponent;
     private SoundEffect opponentHitPlayer;
     private SoundEffect opponentMissPlayer;
+    private SoundEffect mainBackgroundLoop;
+    private SoundEffect startFiring;
+    private SoundEffect victory;
+    private SoundEffect loss;
+    private ArrayList<SoundEffect> allSoundEffects;
 
-    //constructor
+    // constructor
     public Sound() {
 
-        playerHitOpponent = new SoundEffect();
-        playerMissOpponent = new SoundEffect();
-        opponentHitPlayer = new SoundEffect();
-        opponentMissPlayer = new SoundEffect();
-        
-        //assign file locations to sound files
-        playerHitOpponent.setFile("./Sounds/ShotHit.wav");
-        playerMissOpponent.setFile("./Sounds/ShotMiss.wav");
-        opponentHitPlayer.setFile("./Sounds/ShotHitO.wav");
-        opponentMissPlayer.setFile("./Sounds/ShotMissO.wav");
+        allSoundEffects = new ArrayList<SoundEffect>();
+
+        // assign file locations to sound files
+        mainBackgroundLoop = newSoundEffect("./Sounds/mainPlayLoop1.wav");
+        lastShip = newSoundEffect("./Sounds/lastShip.wav");
+        playerHitOpponent = newSoundEffect("./Sounds/ShotHit.wav");
+        playerMissOpponent = newSoundEffect("./Sounds/ShotMiss.wav");
+        opponentHitPlayer = newSoundEffect("./Sounds/ShotHitO.wav");
+        opponentMissPlayer = newSoundEffect("./Sounds/ShotMissO.wav");
+        startFiring = newSoundEffect("./Sounds/startShooting.wav");
+        victory = newSoundEffect("./Sounds/victory.wav");
+        loss = newSoundEffect("./Sounds/loss.wav");
     }
 
-    //basic loading and processing for each sound effect
+    // basic loading and processing for each sound effect
     private class SoundEffect {
         Clip clip;
 
@@ -50,25 +59,72 @@ public class Sound {
             clip.setFramePosition(0);
             clip.start();
         }
+
+        private void playLoop() {
+            clip.setFramePosition(0);
+            clip.start();
+            clip.loop(100);
+        }
+
+        private void stop() {
+            clip.stop();
+        }
     }
 
-    //player hits the opponent
-    public void playHitO(){
+    // get new sound effect
+    public SoundEffect newSoundEffect(String filePath) {
+        SoundEffect temp = new SoundEffect();
+        temp.setFile(filePath);
+        allSoundEffects.add(temp);
+        return temp;
+    }
+
+    // player hits the opponent
+    public void playHitO() {
         playerHitOpponent.play();
     }
 
-    //player misses the opponent
-    public void playMissO(){
+    // player misses the opponent
+    public void playMissO() {
         playerMissOpponent.play();
     }
-    
-    //opponent hit the player
-    public void playHitP(){
+
+    // opponent hit the player
+    public void playHitP() {
         opponentHitPlayer.play();
     }
 
-    //opponent misses the player
-    public void playMissP(){
+    // opponent misses the player
+    public void playMissP() {
         opponentMissPlayer.play();
+    }
+
+    //main background sound
+    public void mainPlayLoop() {
+        mainBackgroundLoop.playLoop();
+    }
+
+    public void lastShipLoop() {
+        lastShip.playLoop();
+    }
+
+    //player only has one ship remaining
+    public void startShooting(){
+        startFiring.play();
+    }
+
+    public void playVictory(){
+        victory.play();
+    }
+
+    public void playLoss(){
+        loss.play();
+    }
+
+    //stops playing any sound effect
+    public void stopAll() {
+        for (int i = 0; i < allSoundEffects.size(); i++) {
+            allSoundEffects.get(i).stop();
+        }
     }
 }

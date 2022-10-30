@@ -26,6 +26,7 @@ public class Controller {
 	// initiates the main game sequence, starting with name and role selection
 	public void playGame() throws IOException, InterruptedException {
 
+		soundEffect.mainPlayLoop();
 		gameViewer.addNotification("Player, enter your name. ");
 
 		// wait for setup to complete
@@ -111,16 +112,27 @@ public class Controller {
 					shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
 					bombardPlayer(gameModel.getOpponentShadow(), gameModel.getThisPlayer());
 					updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
+
+					// faster paced music when down to one ship
+					if (gameModel.getThisPlayer().getRemainingShips() == 1) {
+						soundEffect.stopAll();
+						soundEffect.lastShipLoop();
+					}
+
 					gameModel.setState(State.SELECTING_VOLLEY);
 					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow());
 				}
 			}
 
 			// declare winners
-			if (currentWinner == 1)
+			if (currentWinner == 1) {
 				gameViewer.winCondition();
-			else
+				soundEffect.stopAll();
+				soundEffect.playVictory();
+			} else {
 				gameViewer.loseCondition();
+				soundEffect.playLoss();
+			}
 
 			// wait for player end game choice; play again sets state to ship placement and
 			// restarts loop. End game sets state to setup so loop is not repeated and
@@ -168,6 +180,7 @@ public class Controller {
 		}
 	}
 
+	//attempt to place a ship, return false if unsuccessful
 	public boolean tryPlaceShip(int row, int col, int shipID, boolean horizontal) {
 
 		boolean shipPlaced = false;
