@@ -94,4 +94,10 @@ public class Player {
 	public String getName() {
 		return playerName;
 	}
+
+	public void resetBoard(){
+		target = new TargetGrid(boardRows, boardCols);
+		ocean = new OceanGrid(boardRows, boardCols);
+		remainingShips = ocean.getNumberOfShips();
+	}
 }

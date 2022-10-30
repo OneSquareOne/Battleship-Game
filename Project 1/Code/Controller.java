@@ -15,18 +15,20 @@ public class Controller {
 	private Viewer gameViewer;
 	private Model gameModel;
 	private Sound soundEffect;
+	private Sound backgroundMusic;
 
 	// constructor
 	public Controller() {
 		rowColArray = new int[2];
 		soundEffect = new Sound();
+		backgroundMusic = new Sound();
 		currentWinner = -1;
 	}
 
 	// initiates the main game sequence, starting with name and role selection
 	public void playGame() throws IOException, InterruptedException {
 
-		soundEffect.mainPlayLoop();
+		backgroundMusic.mainPlayLoop();
 		gameViewer.addNotification("Player, enter your name. ");
 
 		// wait for setup to complete
@@ -62,7 +64,7 @@ public class Controller {
 		swapNames();
 		gameViewer.addNotification("Connection successful.  Opponent: " + gameModel.getOpponentShadow().getName());
 
-		// MAIN PLAY WHILE LOOP
+		// ****************** MAIN PLAY WHILE LOOP **********************************
 		while (gameModel.getState() == State.SHIP_PLACEMENT) {
 
 			gameViewer.addNotification(gameModel.getThisPlayer().getName() + ", place your ships.");
@@ -115,11 +117,6 @@ public class Controller {
 					bombardPlayer(gameModel.getOpponentShadow(), gameModel.getThisPlayer());
 					updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
 
-					// faster paced music when down to one ship
-					if (gameModel.getThisPlayer().getRemainingShips() == 1) {
-						soundEffect.lastShipLoop();
-					}
-
 					gameModel.setState(State.SELECTING_VOLLEY);
 					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow());
 				}
@@ -128,11 +125,10 @@ public class Controller {
 			// declare winners
 			if (currentWinner == 1) {
 				gameViewer.winCondition();
-				soundEffect.stopAll();
-				soundEffect.playVictory();
+				backgroundMusic.playVictory();
 			} else {
 				gameViewer.loseCondition();
-				soundEffect.playLoss();
+				backgroundMusic.playLoss();
 			}
 
 			// wait for player end game choice; play again sets state to ship placement and
@@ -143,7 +139,7 @@ public class Controller {
 		} // end of main play (while) loop
 
 		gameModel.getRole().closeConnection();
-	}// end of playGame
+	}// ********************* end of playGame *******************************
 
 	// Players swap names, sever sends first
 	private void swapNames() throws IOException {
@@ -181,7 +177,7 @@ public class Controller {
 		}
 	}
 
-	//attempt to place a ship, return false if unsuccessful
+	// attempt to place a ship, return false if unsuccessful
 	public boolean tryPlaceShip(int row, int col, int shipID, boolean horizontal) {
 
 		boolean shipPlaced = false;
@@ -279,6 +275,12 @@ public class Controller {
 				gameViewer.addNotification("The " + shipHit.getName() + " was sunk!");
 				if (shootingPlayer == gameModel.getThisPlayer()) {
 					gameViewer.enemyShipSunk(shipHit.getID()); // changes ship image to sunk
+				}
+
+				if (receivingPlayer == gameModel.getThisPlayer() && receivingPlayer.getRemainingShips() == 1) {
+					// faster paced music when down to one ship
+					backgroundMusic.lastShipLoop();
+
 				}
 			}
 		} else {
@@ -401,6 +403,11 @@ public class Controller {
 	// returns game to play loop if new game button is selected
 	public void startNewGame(boolean newGame) {
 		if (newGame && (gameModel.getState() == State.END_GAME)) {
+			gameModel.getThisPlayer().resetBoard();
+			gameModel.getOpponentShadow().resetBoard();
+			updateViewerEntireOceanGrid();
+			updateViewerEntireTargetGrid();
+			backgroundMusic.mainPlayLoop();
 			gameModel.setState(State.SHIP_PLACEMENT);
 		} else if (!newGame && (gameModel.getState() == State.END_GAME)) {
 			gameModel.setState(State.SETUP);

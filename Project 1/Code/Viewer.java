@@ -458,10 +458,12 @@ public class Viewer {
 		JButton playAgainButton = new JButton(playAgain);
 		playAgainButton.setBounds(10, 295, 270, 50);
 		playAgainButton.setContentAreaFilled(false);
+		playAgainButton.setBorderPainted(false);
 		playAgainButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sound.playClick();
 				gameController.startNewGame(true);
+				resetGameBoard();
 				winFrame.dispose();
 			}
 		});
@@ -471,6 +473,7 @@ public class Viewer {
 		JButton endButton = new JButton(end);
 		endButton.setBounds(300, 295, 270, 50);
 		endButton.setContentAreaFilled(false);
+		endButton.setBorderPainted(false);
 		endButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sound.playClick();
@@ -479,17 +482,19 @@ public class Viewer {
 				frame.dispose();
 			}
 		});
-		
+
 		winFrame.add(endButton);
 		winFrame.add(playAgainButton);
 		winFrame.add(picLabel);
-		
+
+		winFrame.repaint();	
 	}
 
 	// turns on ship buttons in preparation for placement
 	public void activateShipPlacement() {
 		serverButton.setVisible(false);
 		clientButton.setVisible(false);
+		turnLabel.setVisible(false);
 		autoPlaceButton.setVisible(true);
 		horizontalButton.setVisible(true);
 
@@ -573,12 +578,13 @@ public class Viewer {
 		}
 	}
 
-	// TODO: set up reset functionality
+	//resets game board //TODO: revalidate may or may not work to refresh screen
 	private void resetGameBoard() {
-		// TODO:reset notification area
-		// TODO:reset ships (to not on fire and selectable)
-		// TODO:reset ocean grid
-		// TODO:reset target grid
+		notificationArea.setBounds(84, 110, 591, 130);
+		frame.remove(boats);
+		createBoatArea();
+		activateShipPlacement();
+		frame.revalidate();
 	}
 
 	// targetGridListener will listen for buttons on the target grid to be pressed
