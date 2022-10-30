@@ -11,8 +11,8 @@ public class Model {
     public Model(Controller controller){
         gameController = controller;
         gameController.registerModel(this);
-        thisPlayer = new Player("Player");
-        opponentShadow = new Player("Opponent");
+        thisPlayer = new Player("Player", BOARD_ROWS, BOARD_COLS);
+        opponentShadow = new Player("Opponent", BOARD_ROWS, BOARD_COLS);
         thisPlayerState = new State();
     }
 

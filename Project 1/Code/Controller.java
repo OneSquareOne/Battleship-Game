@@ -1,7 +1,8 @@
-/* Controller is part of the MVC design pattern and is used as a point of communication between the model and view.  It is 
- * also responsible for initializing the game environments and connecting to another player.
+/* Controller is part of the MVC design pattern and is used as a point of communication between the 
+ * model and view.  It is also responsible for initializing the game environments and connecting to 
+ * another player.
  * Authors: Ryan Collins, John Schmidt
- * Last Update: 10/28/2022
+ * Last Update: 10/29/2022
  */
 
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.io.IOException;
 public class Controller {
 
 	private String name; // for passing current player's name
-	private int currentWinner = -1; // for passing along current winner
+	private int currentWinner; // for passing along current winner
 	private int rowColArray[]; // for passing along current shot
 	private Viewer gameViewer;
 	private Model gameModel;
@@ -19,8 +20,10 @@ public class Controller {
 	public Controller() {
 		rowColArray = new int[2];
 		soundEffect = new Sound();
+		currentWinner = -1;
 	}
 
+	// initiates the main game sequence, starting with name and role selection
 	public void playGame() throws IOException, InterruptedException {
 
 		gameViewer.addNotification("Player, enter your name. ");
@@ -95,14 +98,10 @@ public class Controller {
 					while (gameModel.getState() == State.SELECTING_VOLLEY) {
 					} // wait for volley to be selected from GUI
 
-					bombardPlayer(gameModel.getThisPlayer(), gameModel.getOpponentShadow()); // process shot from
-																								// current player
+					bombardPlayer(gameModel.getThisPlayer(), gameModel.getOpponentShadow());
 					gameModel.getRole().send(rowColArray); // send shot to real opponent
 					updateViewerTargetGridLocation(rowColArray[0], rowColArray[1]);
-					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow()); // changes
-																												// state
-																												// if
-																												// winner
+					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow());
 				}
 
 				// if game isn't over, opponent's turn to shoot
@@ -110,14 +109,10 @@ public class Controller {
 					gameViewer.setTurnLabelOpponentsTurn();
 					rowColArray = (int[]) gameModel.getRole().receive(); // get shot from opponent
 					shotFromOpponent(rowColArray[0], rowColArray[1]); // sets current shot and changes state
-					bombardPlayer(gameModel.getOpponentShadow(), gameModel.getThisPlayer());// process shot from shadow
-																							// opponent
+					bombardPlayer(gameModel.getOpponentShadow(), gameModel.getThisPlayer());
 					updateViewerOceanGridLocation(rowColArray[0], rowColArray[1]);
 					gameModel.setState(State.SELECTING_VOLLEY);
-					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow());// changes
-																												// state
-																												// if
-																												// winner
+					currentWinner = checkForWinner(gameModel.getThisPlayer(), gameModel.getOpponentShadow());
 				}
 			}
 
@@ -128,9 +123,8 @@ public class Controller {
 				gameViewer.loseCondition();
 
 			// wait for player end game choice; play again sets state to ship placement and
-			// restarts
-			// loop. End game sets state to setup so loop is not repeated and connection is
-			// closed
+			// restarts loop. End game sets state to setup so loop is not repeated and
+			// connection is closed
 			while (gameModel.getState() == State.END_GAME) {
 			}
 		} // end of main play (while) loop
@@ -163,8 +157,8 @@ public class Controller {
 	}
 
 	// method modifies an incoming OceanGrid to targetGrid formatting. Both players
-	// store a copy of
-	// their own ocean grid and the target grid representing their opponent
+	// store a copy of their own ocean grid and the target grid representing their
+	// opponent
 	public void copyOpponentsOceanGrid(OceanGrid copiedOceanGrid, Player opponentShadow) {
 		for (int i = 0; i < Model.BOARD_ROWS; i++) {
 			for (int j = 0; j < Model.BOARD_COLS; j++) {
@@ -257,12 +251,13 @@ public class Controller {
 
 		if (hit) {
 			Ship shipHit = receivingPlayer.getOceanGrid().getShipAt(row, col); // fetch ship hit
-			gameViewer.addNotification(shootingPlayer.getName() + " hit "+ receivingPlayer.getName()+ "'s " + shipHit.getName() + "!");
+			gameViewer.addNotification(
+					shootingPlayer.getName() + " hit " + receivingPlayer.getName() + "'s " + shipHit.getName() + "!");
 			shootingPlayer.getTargetGrid().isHit(row, col);
-			
-			if(shootingPlayer == gameModel.getThisPlayer()){
+
+			if (shootingPlayer == gameModel.getThisPlayer()) {
 				soundEffect.playHitO();
-			}else{
+			} else {
 				soundEffect.playHitP();
 			}
 

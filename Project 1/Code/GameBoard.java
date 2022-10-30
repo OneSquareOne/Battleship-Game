@@ -1,7 +1,7 @@
-/* GameBoard is part of the Battleship Project.  The GameBoard class is the abstract class for implementation of the TargetGrid
- * and OceanGrid classes. The processShot() method is abstract and must be implemented in these subclasses.
+/* GameBoard is part of the Battleship Project.  The GameBoard class is the abstract class for 
+ * implementation of the TargetGrid and OceanGrid classes.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/20/2022
+ * Updated: 10/29/2022
  */
 
 public abstract class GameBoard {

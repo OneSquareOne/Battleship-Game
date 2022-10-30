@@ -1,7 +1,7 @@
 /* Viewer is the GUI and view part of the MVC pattern used for the Battleship game. It takes input
  * from the user and sends it to the controller via action listeners.
  * Authors: Ryan Collins, John Schmidt
- * Last Updated: 10/22/2022
+ * Last Updated: 10/29/2022
  */
 
 import java.awt.*;
@@ -10,16 +10,12 @@ import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.text.BadLocationException;
-import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 
 public class Viewer {
 
 	private Controller gameController; // so the viewer be accessed by the controller
-	private JFrame frame;
-	private JPanel boats;
+	private JFrame frame; //main window
+	private JPanel boats; 
 	private JButton buttonTargetGridArray[][]; // used for updating target grid button images
 	private JButton buttonOceanGridArray[][]; // used for updating ocean grid button images
 	private JButton buttonShipArray[]; // used for updating ship boat area
@@ -261,6 +257,7 @@ public class Viewer {
 		frame.add(nameArea);
 	}
 
+	//creates the notification area on the left side of the screen
 	private void createNotificationArea() throws BadLocationException {
 		notificationArea = new MyTextArea();
 		notificationArea.setBounds(84, 110, 591, 130);
@@ -271,6 +268,7 @@ public class Viewer {
 		notificationArea.setEditable(false);
 	}
 
+	//creates the horizontal/vertical selection button
 	private void createHorizontalButton() {
 		horizontalButton = new JButton("Horizontal");
 		horizontalButton.setBounds(750, 110, 290, 50);
@@ -281,6 +279,7 @@ public class Viewer {
 
 	}
 
+	//creates the automatic placement button
 	private void createAutoPlaceShipsButton() {
 		autoPlaceButton = new JButton("Automatic Placement");
 		autoPlaceButton.setBounds(1050, 110, 290, 50);
@@ -316,8 +315,8 @@ public class Viewer {
 		frame.add(serverButton);
 	}
 
+	//creates the client button on the right side of the screen
 	private void createClientButton() {
-
 		clientButton = new JButton("Client"); // creates client button
 		clientButton.setBounds(750, 110, 290, 50);
 		clientButton.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -356,6 +355,7 @@ public class Viewer {
 				}
 			}
 		});
+
 		textArea.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent e) { // clicked on text box
 				if (textArea.getText().equals("Enter server's device name:")) {
@@ -373,12 +373,11 @@ public class Viewer {
 				}
 			}
 		});
-
 		frame.add(textArea);
 		frame.add(clientButton);
-
 	}
 
+	//creates label indicating whose turn to fire it is
 	private void createTurnLabel() {
 		turnLabel = new JLabel();
 		turnLabel.setBounds(750, 205, 590, 90);
@@ -386,6 +385,7 @@ public class Viewer {
 		frame.add(turnLabel);
 	}
 
+	//creates the player name label for the right side of the screen
 	private void createPlayerLabel() {
 		playerNameLabel = new JLabel();
 		playerNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -394,6 +394,7 @@ public class Viewer {
 		frame.add(playerNameLabel);
 	}
 
+	//creates the opponent name label for the left side of the screen
 	private void createOpponentLabel() {
 		opponentNameLabel = new JLabel();
 		opponentNameLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 30));
@@ -417,7 +418,6 @@ public class Viewer {
 	private void endGameWindow(boolean won) throws IOException {
 
 		JFrame winFrame = new JFrame(); // new popup frame contains label and buttons
-
 		ImageIcon icon;
 
 		if (won) { // set correct background
@@ -479,7 +479,7 @@ public class Viewer {
 		}
 	}
 
-	// moves notification area, turns on turn indicator button
+	// moves notification area and ship area, turns on turn indicator button
 	public void shipPlacementComplete() {
 		autoPlaceButton.setVisible(false);
 		horizontalButton.setVisible(false);
@@ -611,9 +611,7 @@ public class Viewer {
 	// ship needs to be placed; may need to be modified once drag and drop is
 	// implemented
 	public class selectedShipListener implements ActionListener {
-
 		int buttonID;
-
 		public selectedShipListener(int ID) {
 			buttonID = ID;
 		}

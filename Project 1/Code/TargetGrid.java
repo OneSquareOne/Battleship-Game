@@ -1,7 +1,7 @@
 /* TargetGrid is part of the Battle Ship project.  It is an implementation of the GameBoard superclass.  It is used to 
  * represent the target grid (your view of your opponents grid) in a Battle Ship game.
  * Authors: Ryan Collins, John Schmidt
- * Updated: 10/15/2022
+ * Updated: 10/29/2022
  */
 
 public class TargetGrid extends GameBoard {
@@ -36,6 +36,7 @@ public class TargetGrid extends GameBoard {
 		this.updateGrid(row, col, 1);
 	}
 
+	//for construction of image locations; based on current 
 	public String getImagePath(int row, int col) {
 		String fileNameString = IMAGE_DIRECTORY; // add directory
 		int value = getGridLocationValue(row, col); // get ocean value

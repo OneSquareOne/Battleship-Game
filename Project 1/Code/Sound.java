@@ -24,6 +24,7 @@ public class Sound {
         opponentHitPlayer = new SoundEffect();
         opponentMissPlayer = new SoundEffect();
         
+        //assign file locations to sound files
         playerHitOpponent.setFile("./Sounds/ShotHit.wav");
         playerMissOpponent.setFile("./Sounds/ShotMiss.wav");
         opponentHitPlayer.setFile("./Sounds/ShotHitO.wav");
@@ -51,18 +52,22 @@ public class Sound {
         }
     }
 
+    //player hits the opponent
     public void playHitO(){
         playerHitOpponent.play();
     }
 
+    //player misses the opponent
     public void playMissO(){
         playerMissOpponent.play();
     }
-
+    
+    //opponent hit the player
     public void playHitP(){
         opponentHitPlayer.play();
     }
 
+    //opponent misses the player
     public void playMissP(){
         opponentMissPlayer.play();
     }
