@@ -479,10 +479,11 @@ public class Viewer {
 				frame.dispose();
 			}
 		});
-
+		
 		winFrame.add(endButton);
 		winFrame.add(playAgainButton);
 		winFrame.add(picLabel);
+		
 	}
 
 	// turns on ship buttons in preparation for placement

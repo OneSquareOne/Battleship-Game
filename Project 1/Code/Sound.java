@@ -23,6 +23,7 @@ public class Sound {
     private SoundEffect victory;
     private SoundEffect loss;
     private ArrayList<SoundEffect> allSoundEffects;
+    private boolean lastPhase;
 
     // constructor
     public Sound() {
@@ -40,6 +41,8 @@ public class Sound {
         victory = newSoundEffect("./Sounds/victory.wav");
         loss = newSoundEffect("./Sounds/loss.wav");
         click = newSoundEffect("./Sounds/click.wav");
+
+        lastPhase = false; //keeps track of when lastShip should be played
     }
 
     // basic loading and processing for each sound effect
@@ -70,10 +73,6 @@ public class Sound {
 
         private void stop() {
             clip.stop();
-        }
-
-        private boolean isPlaying() {
-            return clip.isRunning();
         }
     }
 
@@ -115,8 +114,10 @@ public class Sound {
     }
 
     public void lastShipLoop() {
-        if (!lastShip.isPlaying())
+        if (!lastPhase)
+            stopAll();
             lastShip.playLoop();
+            lastPhase = true;
     }
 
     // player only has one ship remaining
@@ -126,11 +127,13 @@ public class Sound {
 
     //new game selection screen
     public void playVictory() {
+        stopAll();
         victory.play();
     }
 
     //new game selection screen
     public void playLoss() {
+        stopAll();
         loss.play();
     }
 

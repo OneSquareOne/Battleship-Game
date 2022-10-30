@@ -117,7 +117,6 @@ public class Controller {
 
 					// faster paced music when down to one ship
 					if (gameModel.getThisPlayer().getRemainingShips() == 1) {
-						soundEffect.stopAll();
 						soundEffect.lastShipLoop();
 					}
 
