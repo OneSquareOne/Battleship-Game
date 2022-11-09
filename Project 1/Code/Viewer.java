@@ -524,6 +524,7 @@ public class Viewer {
 
 		notificationArea.setBounds(750, 70, 591, 130);
 		boats.setBounds(74, 110, 610, 145);
+		boats.revalidate();
 		turnLabel.setVisible(true);
 		playerNameLabel.setBounds(920, 20, 350, 50);
 		opponentName = gameController.getOpponentName();
